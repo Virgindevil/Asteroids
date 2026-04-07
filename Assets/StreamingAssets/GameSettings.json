@@ -1,0 +1,30 @@
+{
+  "Player": {
+    "MaxHealth": 3,
+    "MovementAcceleration": 15.0,
+    "Friction": 0.98,
+    "MaxLaserCharges": 3,
+    "LaserCooldown": 5.0,
+    "BulletSpeed": 20.0,
+    "ShootCooldown": 0.2
+  },
+  "World": {
+    "Width": 1000.0,
+    "Height": 1000.0,
+    "MaxEnemies": 20,
+    "Enemies": [
+      {
+        "EnemyType": "Asteroid",
+        "Speed": 5.0,
+        "ScoreReward": 100,
+        "CollisionRadius": 2.0
+      },
+      {
+        "EnemyType": "UFO",
+        "Speed": 8.0,
+        "ScoreReward": 500,
+        "CollisionRadius": 1.5
+      }
+    ]
+  }
+}
