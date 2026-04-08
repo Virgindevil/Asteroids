@@ -25,5 +25,18 @@ namespace Game.Infrastructure
             Root = JsonConvert.DeserializeObject<GameSettingsRoot>(jsonContent);
             Debug.Log("<color=green>[ConfigLoader] Game Settings loaded successfully!</color>");
         }
+
+        public void LoadManually()
+        {
+            string path = Path.Combine(Application.streamingAssetsPath, "GameSettings.json");
+            if (!File.Exists(path))
+            {
+                Debug.LogError($"Файл не найден: {path}");
+                return;
+            }
+
+            string jsonContent = File.ReadAllText(path);
+            Root = JsonConvert.DeserializeObject<GameSettingsRoot>(jsonContent);
+        }
     }
 }
