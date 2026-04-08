@@ -17,21 +17,19 @@ namespace Game.Infrastructure
             // 2. Биндим сам загрузчик и уже готовые данные
             Container.Bind<ConfigLoader>().FromInstance(configLoader).AsSingle();
 
-            if (configLoader.Root != null)
-            {
-                Container.Bind<PlayerConfig>().FromInstance(configLoader.Root.Player).AsSingle();
-                Container.Bind<WorldConfig>().FromInstance(configLoader.Root.World).AsSingle();
-            }
-            else
-            {
-                Debug.LogError("КРИТИЧЕСКАЯ ОШИБКА: Конфиги не загружены! Проверь JSON.");
-            }
+            Container.Bind<PlayerConfig>().FromInstance(configLoader.Root.Player).AsSingle();
+            Container.Bind<WorldConfig>().FromInstance(configLoader.Root.World).AsSingle();
 
             // 3. Остальные зависимости
             Container.Bind<PlayerModel>().AsSingle();
             Container.Bind<PlayerViewModel>().AsSingle();
             Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
             Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
+            
+            // Регистрация типов сигналов
+            Container.DeclareSignal<PlayerHealthChangedSignal>();
+            Container.DeclareSignal<CollisionOccurredSignal>();
+            Container.DeclareSignal<LaserFiredSignal>();
         }
     }
 }
