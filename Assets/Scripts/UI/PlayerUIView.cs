@@ -25,13 +25,13 @@ namespace Game.UI
             if (_viewModel == null) return;
 
             // Координаты (форматируем до 1 знака после запятой)
-            _coordsText.text = $"POS: {_viewModel.Position.x:F1} : {_viewModel.Position.y:F1}";
+            _coordsText.text = $"POS: \n{_viewModel.Position.x:F1} : {_viewModel.Position.y:F1}";
 
             // Угол поворота
-            _rotationText.text = $"ROT: {Mathf.RoundToInt(_viewModel.Rotation)}°";
+            _rotationText.text = $"ROT: \n{Mathf.RoundToInt(_viewModel.RoundRotation)}°";
 
             // Мгновенная скорость
-            _speedText.text = $"SPEED: {_viewModel.Speed:F2} m/s";
+            _speedText.text = $"SPEED: \n{_viewModel.Speed:F2} m/s";
 
             // Лазер (заряды и таймер пока в заглушке, скоро оживим)
             //_laserText.text = $"LASER: {_viewModel.LaserCharges} | CD: 0.0s";

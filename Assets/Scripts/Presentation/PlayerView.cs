@@ -16,7 +16,8 @@ namespace Game.Presentation
 
         private void Update()
         {
-            if (_viewModel == null) return;
+            if (_viewModel == null) 
+                return;
 
             // 1. Обновляем логику перемещения и телепортации внутри ViewModel
             _viewModel.Update(Time.deltaTime);

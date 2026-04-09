@@ -21,11 +21,11 @@ namespace Game.Infrastructure
 
             if (_input.IsAccelerating())
             {
-                _model.Accelerate(_input.GetRotationDirection(), dt);
+                _model.Accelerate(_input.GetRotationDirection(_model.Body.Position), dt);
             }
 
             // Поворот за направлением ввода
-            Vector2 dir = _input.GetRotationDirection();
+            Vector2 dir = _input.GetRotationDirection(_model.Body.Position);
             if (dir.sqrMagnitude > 0.01f)
             {
                 _model.Body.Rotation = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
