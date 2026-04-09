@@ -71,7 +71,7 @@ namespace Game.Core
             return distSqr <= minDistSqr;
         }
 
-        public void ReflectVelocity(Vector2 normal, float bounceMultiplier = 1.5f)
+        public void ReflectVelocity(Vector2 normal, float bounceMultiplier = 0.8f)
         {
             Velocity = Vector2.Reflect(Velocity, normal) * bounceMultiplier;
         }
