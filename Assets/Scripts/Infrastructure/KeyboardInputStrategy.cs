@@ -24,5 +24,7 @@ namespace Game.Infrastructure
         }
 
         public bool IsAccelerating() => Input.GetKey(KeyCode.W);
+        public bool IsShooting() => Input.GetMouseButton(0) || Input.GetKey(KeyCode.Space);
+        public bool IsLaserActive() => Input.GetMouseButtonDown(1);
     }
 }

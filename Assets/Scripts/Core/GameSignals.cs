@@ -8,4 +8,8 @@ namespace Game.Core
 
     // Сигнал выстрела лазером
     public struct LaserFiredSignal { public int RemainingCharges; }
+    
+    // Передаем саму модель, чтобы View знала, за кем следить
+    public struct BulletCreatedSignal { public BulletModel Bullet; }
+    public struct BulletDestroyedSignal { public BulletModel Bullet; }
 }

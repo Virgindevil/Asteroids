@@ -1,58 +1,33 @@
-using System.Collections.Generic;
-using Game.Core;
 using UnityEngine;
+using Game.Core;
 using Zenject;
+using Cysharp.Threading.Tasks;
+using System;
 
 namespace Game.Infrastructure
 {
+    // Нам больше не нужен ITickable!
     public class ProjectilePool
     {
-        private readonly List<BulletModel> _activeBullets = new();
-        private readonly Stack<BulletModel> _pool = new();
-        private readonly PlayerConfig _config;
+        private readonly SignalBus _signalBus;
 
-        public ProjectilePool(PlayerConfig config)
+        public ProjectilePool(SignalBus signalBus) => _signalBus = signalBus;
+
+        public void Spawn(Vector2 position, Vector2 direction)
         {
-            _config = config;
+            FireBulletTask(position, direction).Forget(); // Запускаем и забываем (fire and forget)
         }
 
-        public BulletModel Spawn(Vector2 position, Vector2 direction)
+        private async UniTaskVoid FireBulletTask(Vector2 position, Vector2 direction)
         {
-            BulletModel bullet;
-            Vector2 velocity = direction * _config.BulletSpeed;
+            var bullet = new BulletModel(position, direction);
+            
+            _signalBus.Fire(new BulletCreatedSignal { Bullet = bullet });
 
-            if (_pool.Count > 0)
-            {
-                bullet = _pool.Pop();
-                bullet.IsActive = true;
-                bullet.Body.ResetState(position, velocity);
-            }
-            else
-            {
-                bullet = new BulletModel(position, velocity);
-            }
+            // Пуля летит сама 2 секунды
+            await bullet.RunLifeCycle(TimeSpan.FromSeconds(2));
 
-            _activeBullets.Add(bullet);
-            return bullet;
+            _signalBus.Fire(new BulletDestroyedSignal { Bullet = bullet });
         }
-
-        public void Despawn(BulletModel bullet)
-        {
-            bullet.IsActive = false;
-            _activeBullets.Remove(bullet);
-            _pool.Push(bullet);
-        }
-
-        public void Update(float dt)
-        {
-            for (int i = _activeBullets.Count - 1; i >= 0; i--)
-            {
-                var bullet = _activeBullets[i];
-                bullet.Update(dt);
-                if (!bullet.IsActive) Despawn(bullet);
-            }
-        }
-
-        public IReadOnlyList<BulletModel> ActiveBullets => _activeBullets;
     }
 }
