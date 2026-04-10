@@ -4,9 +4,12 @@ namespace Game.Core
 {
     public interface IInputStrategy
     {
-        Vector2 GetRotationDirection(Vector2 pos);
-        bool IsAccelerating();          // Жмем ли газ
-        bool IsShooting();              // Обычный выстрел
-        bool IsLaserActive();           // Лазер
+        // Вектор от игрока к прицелу (мыши)
+        Vector2 GetLookDirection(Vector2 playerScreenPos);
+        // Вектор WASD
+        Vector2 GetMoveDirection();
+        
+        bool IsShooting();
+        bool IsLaserActive();
     }
 }

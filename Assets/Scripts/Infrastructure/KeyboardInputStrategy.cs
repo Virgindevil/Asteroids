@@ -5,25 +5,20 @@ namespace Game.Infrastructure
 {
     public class KeyboardInputStrategy : IInputStrategy
     {
-        /*public Vector2 GetRotationDirection()
+        public Vector2 GetLookDirection(Vector2 playerScreenPos)
         {
+            // Направление от позиции игрока на экране до курсора мыши
             Vector2 mousePos = Input.mousePosition;
-            Vector2 screenCenter = new Vector2(Screen.width / 2, Screen.height / 2);
-            return (mousePos - screenCenter).normalized;
-        }*/
-
-        public Vector2 GetRotationDirection(Vector2 playerPosition)
+            return (mousePos - playerScreenPos).normalized;
+        }
+        
+        public Vector2 GetMoveDirection()
         {
-            // Конвертация экранных координат мыши в мировые
-            Vector3 mouseScreen = Input.mousePosition;
-            mouseScreen.z = -Camera.main.transform.position.z; // Важно для 2D!
-            Vector2 mouseWorld = Camera.main.ScreenToWorldPoint(mouseScreen);
-
-            // Направление от игрока к курсору
-            return (mouseWorld - playerPosition).normalized;
+            float x = Input.GetAxisRaw("Horizontal"); // A (-1) D (1)
+            float y = Input.GetAxisRaw("Vertical");   // S (-1) W (1)
+            return new Vector2(x, y).normalized;
         }
 
-        public bool IsAccelerating() => Input.GetKey(KeyCode.W);
         public bool IsShooting() => Input.GetMouseButton(0) || Input.GetKey(KeyCode.Space);
         public bool IsLaserActive() => Input.GetMouseButtonDown(1);
     }
