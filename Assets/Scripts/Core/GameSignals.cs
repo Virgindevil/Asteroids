@@ -12,4 +12,6 @@ namespace Game.Core
     // Передаем саму модель, чтобы View знала, за кем следить
     public struct BulletCreatedSignal { public BulletModel Bullet; }
     public struct BulletDestroyedSignal { public BulletModel Bullet; }
+
+    public struct LaserStateChangedSignal { public bool IsActive; }
 }

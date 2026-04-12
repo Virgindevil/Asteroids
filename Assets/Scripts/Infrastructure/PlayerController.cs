@@ -9,12 +9,16 @@ namespace Game.Infrastructure
         private readonly PlayerModel _model;
         private readonly IInputStrategy _input;
         private readonly ProjectilePool _pool;
+        private readonly SignalBus _signalBus;
+        private bool _lastLaserState;
 
-        public PlayerController(PlayerModel model, IInputStrategy input, ProjectilePool pool)
+        public PlayerController(PlayerModel model, IInputStrategy input, ProjectilePool pool, 
+            SignalBus signalBus)
         {
             _model = model;
             _input = input;
             _pool = pool;
+            _signalBus = signalBus;
         }
 
         // Каждый кадр: Ввод и Поворот (для плавности визуализации)
@@ -34,6 +38,8 @@ namespace Game.Infrastructure
             {
                 Shoot();
             }
+            
+            HandleLaser();
         }
 
         // Фиксированный шаг: Физика движения
@@ -56,6 +62,23 @@ namespace Game.Infrastructure
             Vector2 shootDirection = _model.Body.Forward;
             Vector2 spawnPosition = _model.Body.Position + shootDirection * 0.5f;
             _pool.Spawn(spawnPosition, shootDirection);
+        }
+        
+        private void HandleLaser()
+        {
+            // Проверяем ввод и наличие заряда (больше 0.1 сек)
+            bool wantLaser = _input.IsLaserActive() && _model.LaserCharge > 0.1f;
+            
+            // Синхронизируем состояние с моделью
+            _model.IsLaserActive = wantLaser;
+            _model.UpdateLaser(Time.deltaTime);
+
+            // Если состояние нажатия изменилось — кидаем сигнал визуалу
+            if (wantLaser != _lastLaserState)
+            {
+                _lastLaserState = wantLaser;
+                _signalBus.Fire(new LaserStateChangedSignal { IsActive = wantLaser });
+            }
         }
     }
 }

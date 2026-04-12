@@ -30,6 +30,7 @@ namespace Game.Infrastructure
             Container.DeclareSignal<PlayerHealthChangedSignal>();
             Container.DeclareSignal<CollisionOccurredSignal>();
             Container.DeclareSignal<LaserFiredSignal>();
+            Container.DeclareSignal<LaserStateChangedSignal>();
             
             Container.DeclareSignal<BulletCreatedSignal>();
             Container.DeclareSignal<BulletDestroyedSignal>();
