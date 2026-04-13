@@ -19,6 +19,7 @@ namespace Game.Core
         public float Rotation => _model.Body.Rotation;
         public float RoundRotation => (_model.Body.Rotation % PhysicsBody.RoundDegree + PhysicsBody.RoundDegree) % PhysicsBody.RoundDegree;
         public float Speed => _model.Body.Velocity.magnitude;
+        public bool IsLaserActive => _model.IsLaserActive;
 
         public void Update(float deltaTime)
         {

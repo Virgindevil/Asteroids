@@ -32,7 +32,8 @@ namespace Game.Presentation
 
         private void Update()
         {
-            if (!_isActive) return;
+            if (!_isActive) 
+                return;
 
             // Рисуем луч от игрока вперед
             _lineRenderer.SetPosition(0, transform.position);

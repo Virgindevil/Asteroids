@@ -34,7 +34,7 @@ namespace Game.UI
             _speedText.text = $"SPEED: \n{_viewModel.Speed:F2} m/s";
 
             // Лазер (заряды и таймер пока в заглушке, скоро оживим)
-            //_laserText.text = $"LASER: {_viewModel.LaserCharges} | CD: 0.0s";
+            _laserText.text = $"LASER: {(_viewModel.IsLaserActive ? "On" : "Off")} | CD: 0.0s";
         }
     }
 }

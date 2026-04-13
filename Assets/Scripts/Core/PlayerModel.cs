@@ -33,7 +33,8 @@ namespace Game.Core
             if (IsLaserActive && LaserCharge > 0)
             {
                 LaserCharge -= dt;
-                if (LaserCharge <= 0) IsLaserActive = false;
+                if (LaserCharge <= 0) 
+                    IsLaserActive = false;
             }
             else if (!IsLaserActive && LaserCharge < MaxLaserCharge)
             {

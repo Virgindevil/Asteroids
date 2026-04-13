@@ -20,6 +20,6 @@ namespace Game.Infrastructure
         }
 
         public bool IsShooting() => Input.GetMouseButton(0) || Input.GetKey(KeyCode.Space);
-        public bool IsLaserActive() => Input.GetMouseButtonDown(1);
+        public bool IsLaserActive() => Input.GetMouseButton(1);
     }
 }

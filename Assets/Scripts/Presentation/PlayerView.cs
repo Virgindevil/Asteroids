@@ -14,6 +14,7 @@ namespace Game.Presentation
             _viewModel = viewModel;
         }
 
+
         private void Update()
         {
             if (_viewModel == null) 
