@@ -9,8 +9,8 @@
     "ShootCooldown": 0.2
   },
   "World": {
-    "Width": 1000.0,
-    "Height": 1000.0,
+    "Width": 71.0,
+    "Height": 40.0,
     "MaxEnemies": 20,
     "Enemies": [
       {

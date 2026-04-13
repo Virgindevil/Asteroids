@@ -19,15 +19,49 @@ namespace Game.Core
         public float Rotation => _model.Body.Rotation;
         public float RoundRotation => (_model.Body.Rotation % PhysicsBody.RoundDegree + PhysicsBody.RoundDegree) % PhysicsBody.RoundDegree;
         public float Speed => _model.Body.Velocity.magnitude;
-        public bool IsLaserActive => _model.IsLaserActive;
+
+        // Количество целых готовых зарядов
+        public int ReadyCharges => Mathf.FloorToInt(_model.LaserCharge);
+
+        // Процент восстановления следующего заряда (для визуальной шкалы или таймера)
+        public float RechargeProgress => _model.LaserCharge % 1f;
 
         public void Update(float deltaTime)
         {
             // Безопасная проверка: если чего-то нет, просто не считаем физику в этом кадре
-            if (_model?.Body == null || _worldConfig == null) return;
+            if (_model?.Body == null || _worldConfig == null) 
+                return;
 
             _model.Body.UpdatePhysics(deltaTime);
             _model.Body.TeleportIfOutOfBounds(_worldConfig.Width, _worldConfig.Height);
+        }
+
+        // Возвращаем остаток времени до восстановления СЛЕДУЮЩЕГО заряда
+        public float NextChargeCooldown
+        {
+            get
+            {
+                if (_model.LaserCharge >= _model.Config.MaxLaserCharges) return 0f;
+
+                // Получаем дробную часть заряда и переводим её в секунды
+                float partialCharge = _model.LaserCharge - Mathf.Floor(_model.LaserCharge);
+                return (1f - partialCharge) * _model.Config.LaserCooldown;
+            }
+        }
+
+        // Можно даже подготовить готовую строку здесь, если View совсем простая
+        // Готовая строка для UI (View просто обращается к этому свойству)
+        public string LaserStatusText
+        {
+            get
+            {
+                if (ReadyCharges >= _model.Config.MaxLaserCharges)
+                    return $"LASER: {ReadyCharges} (READY)";
+
+                // Считаем сколько секунд осталось до +1 заряда
+                float secondsLeft = (1f - RechargeProgress) * _model.Config.LaserCooldown;
+                return $"LASER: {ReadyCharges} | NEXT: {secondsLeft:F1}s";
+            }
         }
     }
 }

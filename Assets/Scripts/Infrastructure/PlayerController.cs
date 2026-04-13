@@ -1,6 +1,8 @@
+using Cysharp.Threading.Tasks;
 using Game.Core;
-using Zenject;
+using System;
 using UnityEngine;
+using Zenject;
 
 namespace Game.Infrastructure
 {
@@ -10,7 +12,7 @@ namespace Game.Infrastructure
         private readonly IInputStrategy _input;
         private readonly ProjectilePool _pool;
         private readonly SignalBus _signalBus;
-        private bool _lastLaserState;
+        private bool _isProcessingLaser;
 
         public PlayerController(PlayerModel model, IInputStrategy input, ProjectilePool pool, 
             SignalBus signalBus)
@@ -63,22 +65,37 @@ namespace Game.Infrastructure
             Vector2 spawnPosition = _model.Body.Position + shootDirection * 0.5f;
             _pool.Spawn(spawnPosition, shootDirection);
         }
-        
+
         private void HandleLaser()
         {
-            // Проверяем ввод и наличие заряда (больше 0.1 сек)
-            bool wantLaser = _input.IsLaserActive() && _model.LaserCharge > 0.1f;
-            
-            // Синхронизируем состояние с моделью
-            _model.IsLaserActive = wantLaser;
             _model.UpdateLaser(Time.deltaTime);
 
-            // Если состояние нажатия изменилось — кидаем сигнал визуалу
-            if (wantLaser != _lastLaserState)
+            // Если игрок хочет стрелять, мы не заняты прошлым выстрелом и есть заряд
+            if (_input.IsLaserActive() && !_isProcessingLaser && _model.LaserCharge >= 1f)
             {
-                _lastLaserState = wantLaser;
-                _signalBus.Fire(new LaserStateChangedSignal { IsActive = wantLaser });
+                FireLaserPulse().Forget();
             }
+        }
+
+        private async UniTaskVoid FireLaserPulse()
+        {
+            if (!_model.TryConsumeCharge()) return;
+
+            _isProcessingLaser = true;
+            _model.IsLaserActive = true;
+            _signalBus.Fire(new LaserStateChangedSignal { IsActive = true });
+
+            // Длительность одного выстрела лазера (например, 0.8 сек)
+            // Можно тоже вынести в JSON как LaserDuration
+            await UniTask.Delay(TimeSpan.FromSeconds(0.8f));
+
+            _model.IsLaserActive = false;
+            _signalBus.Fire(new LaserStateChangedSignal { IsActive = false });
+
+            // Небольшая пауза между импульсами, чтобы лазер не сливался в одну линию
+            await UniTask.Delay(TimeSpan.FromSeconds(0.1f));
+
+            _isProcessingLaser = false;
         }
     }
 }

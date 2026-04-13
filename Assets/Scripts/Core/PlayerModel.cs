@@ -7,19 +7,20 @@ namespace Game.Core
         public PhysicsBody Body { get; private set; }
         public PlayerConfig Config { get; private set; }
 
-        public float MaxLaserCharge => 5f; // Максимум 5 секунд непрерывной работы
-        public float LaserCharge { get; private set; } = 5f;
-        public bool IsLaserActive { get; set; } // Флаг для синхронизации
-        
+        // ТЕПЕРЬ ОПЕРИРУЕМ ЗАРЯДАМИ
+        public float LaserCharge { get; private set; } // От 0 до MaxLaserCharges
+        public bool IsLaserActive { get; set; }
+
         public int Health { get; private set; }
 
         public PlayerModel(PlayerConfig config)
         {
             Config = config;
             Health = (int)config.MaxHealth;
-
-            // Создаем тело. Центр мира (0,0), трение из JSON
             Body = new PhysicsBody(Vector2.zero, config.Friction);
+
+            // Инициализация при спавне
+            LaserCharge = config.MaxLaserCharges;
         }
 
         public void Accelerate(Vector2 direction, float deltaTime)
@@ -30,20 +31,26 @@ namespace Game.Core
         }
         public void UpdateLaser(float dt)
         {
-            if (IsLaserActive && LaserCharge > 0)
+            // Только восстанавливаем заряд, если он не полон
+            if (!IsLaserActive && LaserCharge < Config.MaxLaserCharges)
             {
-                LaserCharge -= dt;
-                if (LaserCharge <= 0) 
-                    IsLaserActive = false;
-            }
-            else if (!IsLaserActive && LaserCharge < MaxLaserCharge)
-            {
-                // Восстанавливается в два раза медленнее, чем тратится
-                LaserCharge += dt * 0.5f; 
+                // Скорость восстановления: 1 заряд за Config.LaserCooldown секунд
+                LaserCharge += dt / Config.LaserCooldown;
+
+                if (LaserCharge > Config.MaxLaserCharges)
+                    LaserCharge = Config.MaxLaserCharges;
             }
         }
-        
-        public void ConsumeLaser(float dt) => LaserCharge = Mathf.Max(0, LaserCharge - dt);
-        public void RestoreLaser(float dt) => LaserCharge = Mathf.Min(MaxLaserCharge, LaserCharge + dt * 0.5f);
+
+        public bool TryConsumeCharge()
+        {
+            if (LaserCharge >= 1f)
+            {
+                LaserCharge -= 1f;
+                return true;
+            }
+            return false;
+        }
+
     }
 }
