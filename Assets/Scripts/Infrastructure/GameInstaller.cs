@@ -23,19 +23,22 @@ namespace Game.Infrastructure
             // 3. Остальные зависимости
             Container.Bind<PlayerModel>().AsSingle();
             Container.Bind<PlayerViewModel>().AsSingle();
+            Container.Bind<ProjectilePool>().AsSingle();
+            Container.Bind<AsteroidFactory>().AsSingle();
+
             Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
             Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
             
             // Регистрация типов сигналов
             Container.DeclareSignal<PlayerHealthChangedSignal>();
             Container.DeclareSignal<CollisionOccurredSignal>();
             Container.DeclareSignal<LaserFiredSignal>();
-            Container.DeclareSignal<LaserStateChangedSignal>();
-            
+            Container.DeclareSignal<LaserStateChangedSignal>();            
             Container.DeclareSignal<BulletCreatedSignal>();
             Container.DeclareSignal<BulletDestroyedSignal>();
+            Container.DeclareSignal<AsteroidCreatedSignal>();
 
-            Container.Bind<ProjectilePool>().AsSingle();
         }
     }
 }

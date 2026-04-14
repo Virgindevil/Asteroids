@@ -28,6 +28,7 @@ namespace Game.Core
         public float Speed;
         public int ScoreReward;
         public float CollisionRadius;
+        public float Friction;
     }
 
     [Serializable]

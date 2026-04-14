@@ -1,8 +1,10 @@
+using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
 
 namespace Game.Core
 {
-    public class PlayerModel
+    public class PlayerModel : ICollidable
     {
         public PhysicsBody Body { get; private set; }
         public PlayerConfig Config { get; private set; }
@@ -12,6 +14,9 @@ namespace Game.Core
         public bool IsLaserActive { get; set; }
 
         public int Health { get; private set; }
+
+        public float CollisionRadius => 0.5f; // Можно вынести в конфиг
+        public bool IsInvulnerable { get; private set; }
 
         public PlayerModel(PlayerConfig config)
         {
@@ -29,6 +34,31 @@ namespace Game.Core
             Vector2 force = direction.normalized * Config.MovementAcceleration * deltaTime;
             Body.AddForce(force);
         }
+
+        public void SetInvulnerable(float duration)
+        {
+            RunInvulnerability(duration).Forget();
+        }
+
+        private async UniTaskVoid RunInvulnerability(float duration)
+        {
+            IsInvulnerable = true;
+            // Здесь можно кинуть сигнал для включения Particle System (кольца)
+            await UniTask.Delay(TimeSpan.FromSeconds(duration));
+            IsInvulnerable = false;
+        }
+
+        public void OnCollision(ICollidable other)
+        {
+            if (IsInvulnerable) 
+                return;
+
+            // По ТЗ: отнимаем здоровье
+            // Health--; 
+            // И запускаем неуязвимость
+            SetInvulnerable(3f);
+        }
+
         public void UpdateLaser(float dt)
         {
             // Только восстанавливаем заряд, если он не полон
