@@ -9,7 +9,7 @@ namespace Game.Presentation
     {
         private readonly SignalBus _signalBus;
         private readonly AsteroidView.Factory _factory;
-        private readonly Dictionary<AsteroidModel, AsteroidView> _views = new();
+        private readonly Dictionary<EnemyModel, AsteroidView> _views = new();
 
         public EnemyViewManager(SignalBus signalBus, AsteroidView.Factory factory)
         {
@@ -19,19 +19,20 @@ namespace Game.Presentation
 
         public void Initialize()
         {
-            _signalBus.Subscribe<AsteroidCreatedSignal>(OnAsteroidCreated);
+            _signalBus.Subscribe<EnemyCreatedSignal>(OnEnemyCreated);
         }
 
-        private void OnAsteroidCreated(AsteroidCreatedSignal signal)
+        private void OnEnemyCreated(EnemyCreatedSignal signal)
         {
             var view = _factory.Create();
-            view.Initialize(signal.Asteroid);
-            _views.Add(signal.Asteroid, view);
+            // signal.Enemy теперь типа EnemyModel, Initialize его примет
+            view.Initialize(signal.Enemy);
+            _views.Add(signal.Enemy, view);
         }
 
         public void Dispose()
         {
-            _signalBus.Unsubscribe<AsteroidCreatedSignal>(OnAsteroidCreated);
+            _signalBus.Unsubscribe<EnemyCreatedSignal>(OnEnemyCreated);
         }
     }
 }

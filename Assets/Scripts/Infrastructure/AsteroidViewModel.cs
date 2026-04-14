@@ -4,10 +4,10 @@ namespace Game.Core
 {
     public class AsteroidViewModel
     {
-        private readonly AsteroidModel _model;
+        private readonly EnemyModel _model;
         private readonly WorldConfig _worldConfig;
 
-        public AsteroidViewModel(AsteroidModel model, WorldConfig worldConfig)
+        public AsteroidViewModel(EnemyModel model, WorldConfig worldConfig)
         {
             _model = model;
             _worldConfig = worldConfig;

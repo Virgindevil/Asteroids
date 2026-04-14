@@ -4,15 +4,31 @@ using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class AsteroidFactory
+    public class EnemyFactory
     {
+        private readonly PlayerModel _player;
         private readonly WorldConfig _worldConfig;
 
-        public AsteroidFactory(WorldConfig worldConfig)
+        public EnemyFactory(PlayerModel player, WorldConfig worldConfig)
         {
+            _player = player;
             _worldConfig = worldConfig;
         }
 
+        public EnemyModel Create(EnemyConfig config)
+        {
+            Vector2 spawnPos = GetRandomSpawnPosition();
+            Vector2 velocity = GetRandomVelocity(spawnPos, config.Speed);
+
+            return config.EnemyType switch
+            {
+                "Asteroid" => new Core.EnemyModel(config, spawnPos, velocity),
+                "UFO" => new UfoModel(config, spawnPos, velocity, _player),
+                _ => new Core.EnemyModel(config, spawnPos, velocity)
+            };
+        }
+
+        /*
         public AsteroidModel CreateRandomAsteroid(EnemyConfig config)
         {
             Vector2 spawnPos = GetRandomSpawnPosition();
@@ -27,6 +43,17 @@ namespace Game.Infrastructure
             Vector2 velocity = direction * config.Speed;
 
             return new AsteroidModel(config, spawnPos, velocity);
+        }*/
+
+        private Vector2 GetRandomVelocity(Vector2 spawnPos, float speed)
+        {
+            // Летим в сторону центра с разбросом
+            Vector2 targetPos = new Vector2(
+                Random.Range(-_worldConfig.Width / 4, _worldConfig.Width / 4),
+                Random.Range(-_worldConfig.Height / 4, _worldConfig.Height / 4)
+            );
+
+            return (targetPos - spawnPos).normalized * speed;
         }
 
         private Vector2 GetRandomSpawnPosition()

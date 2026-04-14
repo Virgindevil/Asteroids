@@ -2,27 +2,28 @@ using UnityEngine;
 
 namespace Game.Core
 {
-    public class AsteroidModel : ICollidable
+    public class EnemyModel : global::EnemyModel, ICollidable
     {
         public PhysicsBody Body { get; }
         public EnemyConfig Config { get; }
         public float CollisionRadius => Config.CollisionRadius;
 
-        public AsteroidModel(EnemyConfig config, Vector2 position, Vector2 velocity)
+        public EnemyModel(EnemyConfig config, Vector2 pos, Vector2 vel)
+        : base(config, pos, vel)
         {
             Config = config;
             // Трение для астероидов обычно ставим 1.0 (без затухания скорости), 
             // чтобы они летели равномерно сквозь космос
-            Body = new PhysicsBody(position, Config.Friction);
-            Body.Velocity = velocity;
+            Body = new PhysicsBody(pos, Config.Friction);
+            Body.Velocity = vel;
         }
 
-        public void Update(float dt)
+        public override void Update(float dt)
         {
             Body.UpdatePhysics(dt);
         }
 
-        public void OnCollision(ICollidable other)
+        public override void OnCollision(ICollidable other)
         {
             // Логика уничтожения будет обрабатываться через менеджер или пулы
         }

@@ -17,6 +17,7 @@ namespace Game.Presentation
                 .UnderTransformGroup("Bullets");
 
             Container.BindInterfacesTo<EnemyViewManager>().AsSingle();
+            //Container.BindInterfacesAndSelfTo<EnemyViewManager>().AsSingle();
 
             Container.BindFactory<AsteroidView, AsteroidView.Factory>()
                 .FromComponentInNewPrefab(_asteroidPrefab)

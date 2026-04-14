@@ -19,14 +19,14 @@
         "Speed": 5.0,
         "ScoreReward": 100,
         "CollisionRadius": 2.0,
-        "Friction" : 1.2
+        "Friction" : 1.0
       },
       {
         "EnemyType": "UFO",
         "Speed": 8.0,
         "ScoreReward": 500,
         "CollisionRadius": 1.5,
-        "Friction": 0.90
+        "Friction": 1.2
       }
     ]
   }

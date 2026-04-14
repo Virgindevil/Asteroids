@@ -6,11 +6,12 @@ namespace Game.Presentation
 {
     public class AsteroidView : MonoBehaviour
     {
-        private AsteroidModel _model;
+        private EnemyModel _model; // Теперь используем базовый тип
 
-        public void Initialize(AsteroidModel model)
+        public void Initialize(EnemyModel model)
         {
             _model = model;
+
             // Устанавливаем масштаб в зависимости от радиуса из конфига
             float size = _model.CollisionRadius * 2f;
             transform.localScale = new Vector3(size, size, 1f);
@@ -25,6 +26,7 @@ namespace Game.Presentation
             transform.rotation = Quaternion.Euler(0, 0, _model.Body.Rotation);
         }
 
+        // ВОТ ЭТА СТРОКА БЫЛА УТЕРЯНА:
         public class Factory : PlaceholderFactory<AsteroidView> { }
     }
 }

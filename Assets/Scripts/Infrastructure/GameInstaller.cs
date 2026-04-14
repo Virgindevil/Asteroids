@@ -24,12 +24,12 @@ namespace Game.Infrastructure
             Container.Bind<PlayerModel>().AsSingle();
             Container.Bind<PlayerViewModel>().AsSingle();
             Container.Bind<ProjectilePool>().AsSingle();
-            Container.Bind<AsteroidFactory>().AsSingle();
+            Container.Bind<EnemyFactory>().AsSingle();
 
             Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
             Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
-            
+
             // Регистрация типов сигналов
             Container.DeclareSignal<PlayerHealthChangedSignal>();
             Container.DeclareSignal<CollisionOccurredSignal>();
@@ -37,7 +37,7 @@ namespace Game.Infrastructure
             Container.DeclareSignal<LaserStateChangedSignal>();            
             Container.DeclareSignal<BulletCreatedSignal>();
             Container.DeclareSignal<BulletDestroyedSignal>();
-            Container.DeclareSignal<AsteroidCreatedSignal>();
+            Container.DeclareSignal<EnemyCreatedSignal>();
 
         }
     }

@@ -14,5 +14,5 @@ namespace Game.Core
     public struct BulletCreatedSignal { public BulletModel Bullet; }
     public struct BulletDestroyedSignal { public BulletModel Bullet; }
 
-    public struct AsteroidCreatedSignal { public AsteroidModel Asteroid; }
+    public struct EnemyCreatedSignal {public EnemyModel Enemy; }
 }

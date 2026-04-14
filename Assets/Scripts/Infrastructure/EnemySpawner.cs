@@ -7,14 +7,14 @@ namespace Game.Infrastructure
 {
     public class EnemySpawner : ITickable
     {
-        private readonly AsteroidFactory _factory;
+        private readonly EnemyFactory _factory; // Используем новую фабрику
         private readonly WorldConfig _worldConfig;
         private readonly SignalBus _signalBus;
 
-        private readonly List<AsteroidModel> _activeAsteroids = new();
+        private readonly List<EnemyModel> _activeEnemies = new();
         private float _spawnTimer;
 
-        public EnemySpawner(AsteroidFactory factory, WorldConfig worldConfig, SignalBus signalBus)
+        public EnemySpawner(EnemyFactory factory, WorldConfig worldConfig, SignalBus signalBus)
         {
             _factory = factory;
             _worldConfig = worldConfig;
@@ -25,31 +25,29 @@ namespace Game.Infrastructure
         {
             _spawnTimer += Time.deltaTime;
 
-            if (_spawnTimer >= 2f && _activeAsteroids.Count < _worldConfig.MaxEnemies)
+            if (_spawnTimer >= 2f && _activeEnemies.Count < _worldConfig.MaxEnemies)
             {
-                SpawnAsteroid();
+                SpawnEnemy(); // Переименовали метод
                 _spawnTimer = 0;
             }
 
-            // Обновляем физику всех астероидов
-            for (int i = 0; i < _activeAsteroids.Count; i++)
+            for (int i = 0; i < _activeEnemies.Count; i++)
             {
-                _activeAsteroids[i].Update(Time.deltaTime);
+                var enemy = _activeEnemies[i];
+                enemy.Update(Time.deltaTime);
+                enemy.Body.TeleportIfOutOfBounds(_worldConfig.Width, _worldConfig.Height);
             }
         }
 
-        private void SpawnAsteroid()
+        private void SpawnEnemy()
         {
-            // Берем случайный тип астероида из конфига
             var config = _worldConfig.Enemies[Random.Range(0, _worldConfig.Enemies.Count)];
-            var asteroid = _factory.CreateRandomAsteroid(config);
+            var enemy = _factory.Create(config);
 
-            _activeAsteroids.Add(asteroid);
+            _activeEnemies.Add(enemy);
 
-            // Кидаем сигнал презентации, чтобы создать View
-            _signalBus.Fire(new AsteroidCreatedSignal { Asteroid = asteroid });
+            // Просто передаем enemy. Никаких (AsteroidModel) или (Core.EnemyModel)
+            _signalBus.Fire(new EnemyCreatedSignal { Enemy = (Core.EnemyModel)enemy });
         }
     }
-
-    public struct AsteroidCreatedSignal { public AsteroidModel Asteroid; }
 }
