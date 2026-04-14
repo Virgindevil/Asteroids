@@ -22,9 +22,14 @@ namespace Game.Infrastructure
 
             return config.EnemyType switch
             {
-                "Asteroid" => new Core.EnemyModel(config, spawnPos, velocity),
+                // Создаем конкретный класс Астероида
+                "Asteroid" => new AsteroidModel(config, spawnPos, velocity),
+        
+                // Создаем конкретный класс НЛО
                 "UFO" => new UfoModel(config, spawnPos, velocity, _player),
-                _ => new Core.EnemyModel(config, spawnPos, velocity)
+        
+                // Ветка по умолчанию тоже должна возвращать что-то реальное (например, астероид)
+                _ => new AsteroidModel(config, spawnPos, velocity)
             };
         }
 

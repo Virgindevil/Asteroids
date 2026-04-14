@@ -1,20 +1,33 @@
-using Game.Core;
 using UnityEngine;
 
-public abstract class EnemyModel : ICollidable
+namespace Game.Core
 {
-    public PhysicsBody Body { get; }
-    public EnemyConfig Config { get; }
-    public float CollisionRadius => Config.CollisionRadius;
-
-    protected EnemyModel(EnemyConfig config, Vector2 position, Vector2 velocity)
+    // Используем abstract, чтобы нельзя было создать "просто врага" 
+    // без конкретной реализации (Астероид или НЛО)
+    public abstract class EnemyModel : ICollidable
     {
-        Config = config;
-        Body = new PhysicsBody(position, config.Friction);
-        Body.Velocity = velocity;
-    }
+        // Общие компоненты для всех врагов
+        public PhysicsBody Body { get; }
+        public EnemyConfig Config { get; }
+        
+        // Реализация интерфейса ICollidable
+        public float CollisionRadius => Config.CollisionRadius;
 
-    // У каждого врага может быть своя уникальная логика движения (Update)
-    public abstract void Update(float dt);
-    public abstract void OnCollision(ICollidable other);
+        protected EnemyModel(EnemyConfig config, Vector2 position, Vector2 velocity)
+        {
+            Config = config;
+            // Трение берем из конфига (1.0 для астероидов, 0.9 для НЛО)
+            Body = new PhysicsBody(position, config.Friction);
+            Body.Velocity = velocity;
+        }
+
+        // Этот метод ОБЯЗАНЫ реализовать все наследники
+        public abstract void Update(float dt);
+
+        // Виртуальный метод для столкновений (можно переопределить при желании)
+        public virtual void OnCollision(ICollidable other) 
+        { 
+            // Базовая логика при столкновении
+        }
+    }
 }
