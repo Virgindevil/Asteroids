@@ -26,7 +26,7 @@
         "Speed": 8.0,
         "ScoreReward": 500,
         "CollisionRadius": 1.5,
-        "Friction": 1.2
+        "Friction": 1.0
       }
     ]
   }

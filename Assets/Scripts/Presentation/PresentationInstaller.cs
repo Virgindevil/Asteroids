@@ -7,6 +7,7 @@ namespace Game.Presentation
     {
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private GameObject _asteroidPrefab;
+        [SerializeField] private GameObject _ufoPrefab;
 
         public override void InstallBindings()
         {
@@ -16,12 +17,19 @@ namespace Game.Presentation
                 .FromComponentInNewPrefab(_bulletPrefab)
                 .UnderTransformGroup("Bullets");
 
-            Container.BindInterfacesTo<EnemyViewManager>().AsSingle();
+            //Container.BindInterfacesTo<EnemyViewManager>().AsSingle();
             //Container.BindInterfacesAndSelfTo<EnemyViewManager>().AsSingle();
 
-            Container.BindFactory<AsteroidView, AsteroidView.Factory>()
+            Container.BindFactory<Vector2, AsteroidView, AsteroidView.Factory>()
                 .FromComponentInNewPrefab(_asteroidPrefab)
                 .UnderTransformGroup("Enemies");
+
+            // Создаем вторую фабрику для НЛО (нужно создать класс UfoView аналогичный AsteroidView)
+            Container.BindFactory<Vector2, UfoView, UfoView.Factory>()
+                .FromComponentInNewPrefab(_ufoPrefab)
+                .UnderTransformGroup("Enemies");
+
+            Container.BindInterfacesAndSelfTo<EnemyViewManager>().AsSingle();
         }
     }
 }

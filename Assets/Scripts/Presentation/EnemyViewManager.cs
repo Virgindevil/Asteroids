@@ -1,38 +1,37 @@
-using System;
-using System.Collections.Generic;
 using Game.Core;
+using Game.Presentation;
+using System;
 using Zenject;
 
-namespace Game.Presentation
+public class EnemyViewManager : IInitializable, IDisposable
 {
-    public class EnemyViewManager : IInitializable, IDisposable
+    private readonly SignalBus _signalBus;
+    private readonly AsteroidView.Factory _asteroidFactory;
+    private readonly UfoView.Factory _ufoFactory;
+
+    public EnemyViewManager(SignalBus signalBus, AsteroidView.Factory asteroidFactory, UfoView.Factory ufoFactory)
     {
-        private readonly SignalBus _signalBus;
-        private readonly AsteroidView.Factory _factory;
-        private readonly Dictionary<EnemyModel, AsteroidView> _views = new();
+        _signalBus = signalBus;
+        _asteroidFactory = asteroidFactory;
+        _ufoFactory = ufoFactory;
+    }
 
-        public EnemyViewManager(SignalBus signalBus, AsteroidView.Factory factory)
-        {
-            _signalBus = signalBus;
-            _factory = factory;
-        }
+    public void Initialize() => _signalBus.Subscribe<EnemyCreatedSignal>(OnEnemyCreated);
 
-        public void Initialize()
+    private void OnEnemyCreated(EnemyCreatedSignal signal)
+    {
+        // Вот тут магия разделения:
+        if (signal.Enemy is UfoModel)
         {
-            _signalBus.Subscribe<EnemyCreatedSignal>(OnEnemyCreated);
-        }
-
-        private void OnEnemyCreated(EnemyCreatedSignal signal)
-        {
-            var view = _factory.Create();
-            // signal.Enemy теперь типа EnemyModel, Initialize его примет
+            var view = _ufoFactory.Create(signal.Enemy.Body.Position);
             view.Initialize(signal.Enemy);
-            _views.Add(signal.Enemy, view);
         }
-
-        public void Dispose()
+        else
         {
-            _signalBus.Unsubscribe<EnemyCreatedSignal>(OnEnemyCreated);
+            var view = _asteroidFactory.Create(signal.Enemy.Body.Position);
+            view.Initialize(signal.Enemy);
         }
     }
+
+    public void Dispose() => _signalBus.Unsubscribe<EnemyCreatedSignal>(OnEnemyCreated);
 }

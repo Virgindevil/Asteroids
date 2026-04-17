@@ -4,7 +4,7 @@ using Zenject;
 
 namespace Game.Presentation
 {
-    public class AsteroidView : MonoBehaviour
+    public class UfoView : MonoBehaviour
     {
         private EnemyModel _model; // Теперь используем базовый тип
 
@@ -33,6 +33,6 @@ namespace Game.Presentation
         }
 
         // ВОТ ЭТА СТРОКА БЫЛА УТЕРЯНА:
-        public class Factory : PlaceholderFactory<Vector2, AsteroidView> { }
+        public class Factory : PlaceholderFactory<Vector2, UfoView> { }
     }
 }
