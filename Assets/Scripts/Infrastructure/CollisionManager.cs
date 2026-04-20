@@ -1,21 +1,27 @@
 using Game.Core;
+using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
 public class CollisionManager : ITickable
 {
     private readonly PlayerModel _player;
+    private readonly List<EnemyModel> _enemies = new();
     // Сюда мы потом добавим списки астероидов и пуль
 
-    public CollisionManager(PlayerModel player)
+    public CollisionManager(PlayerModel player, List<EnemyModel> enemies)
     {
         _player = player;
+        _enemies = enemies;
     }
 
     public void Tick()
     {
         // Пока проверим только игрока (в будущем тут будет цикл по всем объектам)
-        CheckPlayerCollisions();
+        //CheckPlayerCollisions();
+
+        //Проверка: Враги против Врагов
+        
     }
 
     private void CheckPlayerCollisions()

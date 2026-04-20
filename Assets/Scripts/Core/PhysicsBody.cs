@@ -82,5 +82,31 @@ namespace Game.Core
             Velocity = newVel;
             AngularVelocity = 0f;
         }
+
+        public void ResolvePushApart(ICollidable a, ICollidable b)
+        {
+            /*
+            Vector2 normal = (a.Body.Position - b.Body.Position).normalized;
+
+            // Применяем импульс в противоположные стороны
+            a.Body.Velocity += normal * 2f;  // Сила отталкивания
+            b.Body.Velocity -= normal * 2f;
+
+            // Опционально: добавляем небольшое затухание, чтобы не "разлетались" слишком сильно
+            a.Body.Velocity *= 0.95f;
+            b.Body.Velocity *= 0.95f;
+            */
+
+            // Математика отскока (Рикошет)
+            Vector2 normal = (a.Body.Position - b.Body.Position).normalized;
+
+            // Отражаем вектора скоростей
+            a.Body.ReflectVelocity(normal);
+            b.Body.ReflectVelocity(-normal);
+
+            a.OnCollision(b);
+            b.OnCollision(a);
+
+        }
     }
 }

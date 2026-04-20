@@ -26,8 +26,19 @@ namespace Game.Core
 
         // Виртуальный метод для столкновений (можно переопределить при желании)
         public virtual void OnCollision(ICollidable other) 
-        { 
-            // Базовая логика при столкновении
+        {
+            if (other is EnemyModel otherEnemy)
+            {
+                // Враг-враг: отталкивание без урона
+                Body.ResolvePushApart(this, otherEnemy);
+                Debug.Log($"[Enemy] Collision: {Config.EnemyType} ↔ {otherEnemy.Config.EnemyType}");
+            }
+            else if (other is PlayerModel player)
+            {
+                // Враг-игрок: отталкивание + лог
+                Body.ResolvePushApart(this, player);
+                Debug.Log($"[Enemy] Collision with PLAYER at {Body.Position}");
+            }
         }
     }
 }

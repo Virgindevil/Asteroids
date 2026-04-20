@@ -53,10 +53,18 @@ namespace Game.Core
             if (IsInvulnerable) 
                 return;
 
-            // По ТЗ: отнимаем здоровье
-            // Health--; 
-            // И запускаем неуязвимость
-            SetInvulnerable(3f);
+            if (other is EnemyModel enemy)
+            {
+                // Отталкивание от врага
+                Vector2 normal = (Body.Position - enemy.Body.Position).normalized;
+                Body.Velocity += normal * 3f; // Игрок отталкивается сильнее
+                enemy.Body.Velocity -= normal * 1.5f;
+
+                Debug.Log($"[Player] Collision with ENEMY: {enemy.Config.EnemyType}");
+
+                // Запуск неуязвимости (как в оригинале)
+                SetInvulnerable(3f);
+            }
         }
 
         public void UpdateLaser(float dt)
