@@ -5,13 +5,15 @@ using UnityEngine;
 
 namespace Game.Infrastructure
 {
-    public class EnemySpawner : ITickable
+    public class EnemySpawner : ITickable, IEnemyProvider
     {
         private readonly EnemyFactory _factory; // Используем новую фабрику
         private readonly WorldConfig _worldConfig;
         private readonly SignalBus _signalBus;
 
         private readonly List<EnemyModel> _activeEnemies = new();
+        // Реализация интерфейса: просто возвращаем наш приватный список
+        public List<EnemyModel> ActiveEnemies => _activeEnemies;
         private float _spawnTimer;
 
         public EnemySpawner(EnemyFactory factory, WorldConfig worldConfig, SignalBus signalBus)

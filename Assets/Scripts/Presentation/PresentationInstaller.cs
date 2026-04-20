@@ -11,7 +11,7 @@ namespace Game.Presentation
 
         public override void InstallBindings()
         {
-            Container.BindInterfacesTo<ProjectileManager>().AsSingle();
+            Debug.Log("<color=cyan>[PresentationInstaller] InstallBindings started!</color>");
             
             Container.BindFactory<ProjectileView, ProjectileView.Factory>()
                 .FromComponentInNewPrefab(_bulletPrefab)
@@ -30,6 +30,13 @@ namespace Game.Presentation
                 .UnderTransformGroup("Enemies");
 
             Container.BindInterfacesAndSelfTo<EnemyViewManager>().AsSingle();
+            
+            // Для пуль
+            Container.BindInterfacesAndSelfTo<ProjectileManager>().AsSingle();
+            
+            // Для коллизий
+            Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
+            //Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
         }
     }
 }

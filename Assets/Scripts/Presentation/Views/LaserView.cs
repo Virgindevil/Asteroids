@@ -15,13 +15,13 @@ namespace Game.Presentation
         public void Construct(SignalBus signalBus)
         {
             _signalBus = signalBus;
+            _signalBus.Subscribe<LaserStateChangedSignal>(OnLaserStateChanged);
         }
 
         private void Start()
         {
             _lineRenderer = GetComponent<LineRenderer>();
             _lineRenderer.enabled = false;
-            _signalBus.Subscribe<LaserStateChangedSignal>(OnLaserStateChanged);
         }
 
         private void OnLaserStateChanged(LaserStateChangedSignal signal)

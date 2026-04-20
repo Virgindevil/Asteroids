@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Game.Core;
 using Zenject;
 
 namespace Game.Presentation
 {
-    public class ProjectileManager : IInitializable, IDisposable
+    public class ProjectileManager : IInitializable, IDisposable, IProjectileProvider
     {
         private readonly SignalBus _signalBus;
         private readonly ProjectileView.Factory _factory;
         private readonly Dictionary<BulletModel, ProjectileView> _views = new();
+        // Реализация интерфейса
+        public List<BulletModel> ActiveProjectiles => _views.Keys.ToList();
 
         public ProjectileManager(SignalBus signalBus, ProjectileView.Factory factory)
         {

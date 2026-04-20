@@ -28,7 +28,6 @@ namespace Game.Infrastructure
 
             Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
             Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
-            Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
 
             // Регистрация типов сигналов
             Container.DeclareSignal<PlayerHealthChangedSignal>();
@@ -38,6 +37,9 @@ namespace Game.Infrastructure
             Container.DeclareSignal<BulletCreatedSignal>();
             Container.DeclareSignal<BulletDestroyedSignal>();
             Container.DeclareSignal<EnemyCreatedSignal>();
+            
+            // Для врагов
+            Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
 
         }
     }
