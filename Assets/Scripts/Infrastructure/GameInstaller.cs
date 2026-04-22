@@ -37,9 +37,11 @@ namespace Game.Infrastructure
             Container.DeclareSignal<BulletCreatedSignal>();
             Container.DeclareSignal<BulletDestroyedSignal>();
             Container.DeclareSignal<EnemyCreatedSignal>();
+            Container.DeclareSignal<EnemyDestroyedSignal>();
             
             // Для врагов
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
+            
 
         }
     }

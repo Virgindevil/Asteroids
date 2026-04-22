@@ -8,11 +8,13 @@ namespace Game.Infrastructure
     {
         private readonly PlayerModel _player;
         private readonly WorldConfig _worldConfig;
+        private readonly SignalBus _signalBus;
 
-        public EnemyFactory(PlayerModel player, WorldConfig worldConfig)
+        public EnemyFactory(PlayerModel player, WorldConfig worldConfig, SignalBus signalBus)
         {
             _player = player;
             _worldConfig = worldConfig;
+            _signalBus = signalBus;
         }
 
         public EnemyModel Create(EnemyConfig config)
@@ -22,33 +24,22 @@ namespace Game.Infrastructure
 
             return config.EnemyType switch
             {
-                // Создаем конкретный класс Астероида
                 "Asteroid" => new AsteroidModel(config, spawnPos, velocity),
-        
-                // Создаем конкретный класс НЛО
                 "UFO" => new UfoModel(config, spawnPos, velocity, _player),
-        
-                // Ветка по умолчанию тоже должна возвращать что-то реальное (например, астероид)
                 _ => new AsteroidModel(config, spawnPos, velocity)
             };
         }
 
-        /*
-        public AsteroidModel CreateRandomAsteroid(EnemyConfig config)
+        public EnemyModel CreateFragment(FragmentData data, EnemyConfig fragmentConfig)
         {
-            Vector2 spawnPos = GetRandomSpawnPosition();
-
-            // Летим в сторону центра карты с небольшим отклонением
-            Vector2 targetPos = new Vector2(
-                Random.Range(-_worldConfig.Width / 4, _worldConfig.Width / 4),
-                Random.Range(-_worldConfig.Height / 4, _worldConfig.Height / 4)
-            );
-
-            Vector2 direction = (targetPos - spawnPos).normalized;
-            Vector2 velocity = direction * config.Speed;
-
-            return new AsteroidModel(config, spawnPos, velocity);
-        }*/
+            // Создаем модель обломка, используя позицию и скорость из FragmentData
+            var asteroid = new AsteroidModel(fragmentConfig, data.Position, data.Velocity);
+    
+            // МЫ УБРАЛИ ОТСЮДА _signalBus.Fire! 
+            // Теперь только EnemySpawner сообщает системе о появлении врага.
+    
+            return asteroid;
+        }
 
         private Vector2 GetRandomVelocity(Vector2 spawnPos, float speed)
         {

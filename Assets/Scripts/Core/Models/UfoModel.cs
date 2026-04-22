@@ -20,5 +20,17 @@ public class UfoModel : EnemyModel
         Body.UpdatePhysics(dt);
     }
 
-    public override void OnCollision(ICollidable other) { /* Взрыв */ }
+    public override void OnCollision(ICollidable other)
+    {
+        // ОБЯЗАТЕЛЬНО вызываем базовый метод, чтобы работало TakeDamage и логи в консоли
+        base.OnCollision(other);
+
+        // Если нужно добавить специфичное поведение только для НЛО при столкновении,
+        // пиши его ниже:
+        if (other is PlayerModel)
+        {
+            // Например, НЛО может отлетать сильнее при таране игрока
+            Debug.Log("[UFO] Collided with Player!");
+        }
+    }
 }

@@ -11,8 +11,6 @@ namespace Game.Presentation
 
         public override void InstallBindings()
         {
-            Debug.Log("<color=cyan>[PresentationInstaller] InstallBindings started!</color>");
-            
             Container.BindFactory<ProjectileView, ProjectileView.Factory>()
                 .FromComponentInNewPrefab(_bulletPrefab)
                 .UnderTransformGroup("Bullets");
@@ -36,7 +34,6 @@ namespace Game.Presentation
             
             // Для коллизий
             Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
-            //Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
         }
     }
 }

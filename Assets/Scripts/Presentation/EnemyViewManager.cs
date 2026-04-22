@@ -1,6 +1,8 @@
 using Game.Core;
 using Game.Presentation;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 using Zenject;
 
 public class EnemyViewManager : IInitializable, IDisposable
@@ -9,6 +11,9 @@ public class EnemyViewManager : IInitializable, IDisposable
     private readonly AsteroidView.Factory _asteroidFactory;
     private readonly UfoView.Factory _ufoFactory;
 
+    // Словарь для связи модели и её визуального объекта
+    private readonly Dictionary<EnemyModel, MonoBehaviour> _views = new();
+
     public EnemyViewManager(SignalBus signalBus, AsteroidView.Factory asteroidFactory, UfoView.Factory ufoFactory)
     {
         _signalBus = signalBus;
@@ -16,22 +21,52 @@ public class EnemyViewManager : IInitializable, IDisposable
         _ufoFactory = ufoFactory;
     }
 
-    public void Initialize() => _signalBus.Subscribe<EnemyCreatedSignal>(OnEnemyCreated);
+    public void Initialize()
+    {
+        _signalBus.Subscribe<EnemyCreatedSignal>(OnEnemyCreated);
+        _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed); // Добавлена подписка
+    }
 
     private void OnEnemyCreated(EnemyCreatedSignal signal)
     {
-        // Вот тут магия разделения:
+        MonoBehaviour view;
+
         if (signal.Enemy is UfoModel)
         {
-            var view = _ufoFactory.Create(signal.Enemy.Body.Position);
-            view.Initialize(signal.Enemy);
+            var ufoView = _ufoFactory.Create(signal.Enemy.Body.Position);
+            ufoView.Initialize(signal.Enemy);
+            view = ufoView;
         }
         else
         {
-            var view = _asteroidFactory.Create(signal.Enemy.Body.Position);
-            view.Initialize(signal.Enemy);
+            var asteroidView = _asteroidFactory.Create(signal.Enemy.Body.Position);
+            asteroidView.Initialize(signal.Enemy);
+            view = asteroidView;
+        }
+
+        // Сохраняем вьюху в словарь, чтобы потом знать, что удалять
+        if (!_views.ContainsKey(signal.Enemy))
+        {
+            _views.Add(signal.Enemy, view);
         }
     }
 
-    public void Dispose() => _signalBus.Unsubscribe<EnemyCreatedSignal>(OnEnemyCreated);
+    private void OnEnemyDestroyed(EnemyDestroyedSignal signal)
+    {
+        // Ищем вьюху по модели из сигнала
+        if (_views.TryGetValue(signal.Enemy, out var view))
+        {
+            if (view != null && view.gameObject != null)
+            {
+                UnityEngine.Object.Destroy(view.gameObject);
+            }
+            _views.Remove(signal.Enemy);
+        }
+    }
+
+    public void Dispose()
+    {
+        _signalBus.Unsubscribe<EnemyCreatedSignal>(OnEnemyCreated);
+        _signalBus.Unsubscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+    }
 }

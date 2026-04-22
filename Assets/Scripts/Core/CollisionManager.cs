@@ -3,72 +3,64 @@ using System.Collections.Generic;
 using UnityEngine;
 using Zenject;
 
-public class CollisionManager : ITickable
-{
-    private readonly PlayerModel _player;
-    private readonly IEnemyProvider _enemyProvider;
-    private readonly IProjectileProvider _projectileProvider;
-
-    // Конструктор принимает провайдеры (интерфейсы из Reesters.cs)
-    public CollisionManager(
-        PlayerModel player, 
-        IEnemyProvider enemyProvider, 
-        IProjectileProvider projectileProvider)
+    public class CollisionManager : ITickable
     {
-        _player = player;
-        _enemyProvider = enemyProvider;
-        _projectileProvider = projectileProvider;
-        Debug.Log("<color=green>[CollisionManager] Created!</color>");
-    }
+        private readonly PlayerModel _player;
+        private readonly IEnemyProvider _enemyProvider;
+        private readonly IProjectileProvider _projectileProvider;
 
-    public void Tick()
-    {
-        var eCount = _enemyProvider.ActiveEnemies?.Count ?? -1;
-        var pCount = _projectileProvider.ActiveProjectiles?.Count ?? -1;
-    
-        if (Time.frameCount % 60 == 0) // Логаем раз в секунду, чтобы не спамить
+        public CollisionManager(PlayerModel player, IEnemyProvider enemyProvider, IProjectileProvider projectileProvider)
         {
-            Debug.Log($"[CollisionManager] Tick. Enemies: {eCount}, Projectiles: {pCount}");
+            _player = player;
+            _enemyProvider = enemyProvider;
+            _projectileProvider = projectileProvider;
         }
-        
-        // Если этот лог не появится — значит NonLazy() в инсталлере не сработал
-        //Debug.Log("Collision Tick"); 
 
-        var enemies = _enemyProvider.ActiveEnemies;
-        var projectiles = _projectileProvider.ActiveProjectiles;
-
-        // 1. Пули vs Враги
-        for (int i = projectiles.Count - 1; i >= 0; i--)
+        public void Tick()
         {
-            var bullet = projectiles[i];
-            if (!bullet.IsActive) continue;
+            var enemies = _enemyProvider.ActiveEnemies;
+            var projectiles = _projectileProvider.ActiveProjectiles;
 
-            for (int j = enemies.Count - 1; j >= 0; j--)
+            // 1. ПУЛИ vs ВРАГИ
+            for (int i = projectiles.Count - 1; i >= 0; i--)
             {
-                var enemy = enemies[j];
-                if (CheckCollision(bullet, enemy))
+                var bullet = projectiles[i];
+                if (!bullet.IsActive) continue;
+
+                for (int j = enemies.Count - 1; j >= 0; j--)
                 {
-                    bullet.OnCollision(enemy);
-                    enemy.OnCollision(bullet);
+                    var enemy = enemies[j];
+                    if (CheckCollision(bullet, enemy))
+                    {
+                        bullet.OnCollision(enemy);
+                        enemy.OnCollision(bullet); 
+                        break;
+                    }
+                }
+            }
+
+            // 2. ИГРОК vs ВРАГИ
+            if (!_player.IsInvulnerable)
+            {
+                foreach (var enemy in enemies)
+                {
+                    if (CheckCollision(_player, enemy))
+                    {
+                        _player.OnCollision(enemy);
+                        enemy.OnCollision(_player);
+                        PhysicsBody.ResolvePushApart(_player, enemy);
+                    }
                 }
             }
         }
 
-        // 2. Игрок vs Враги
-        for (int i = enemies.Count - 1; i >= 0; i--)
+        private bool CheckCollision(ICollidable a, ICollidable b)
         {
-            if (CheckCollision(_player, enemies[i]))
-            {
-                _player.OnCollision(enemies[i]);
-                enemies[i].OnCollision(_player);
-            }
+            float radiusSum = a.CollisionRadius + b.CollisionRadius;
+            
+            // Если участвует пуля, увеличиваем область в 2 раза, чтобы точно попадать
+            if (a is BulletModel || b is BulletModel) radiusSum *= 2f; 
+
+            return (a.Body.Position - b.Body.Position).sqrMagnitude <= (radiusSum * radiusSum);
         }
     }
-
-    private bool CheckCollision(ICollidable a, ICollidable b)
-    {
-        float distanceSqr = (a.Body.Position - b.Body.Position).sqrMagnitude;
-        float radiusSum = a.CollisionRadius + b.CollisionRadius;
-        return distanceSqr <= (radiusSum * radiusSum);
-    }
-}

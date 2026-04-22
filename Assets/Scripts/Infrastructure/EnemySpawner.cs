@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using Game.Core;
+using System.Linq;
 using Zenject;
 using UnityEngine;
 
 namespace Game.Infrastructure
 {
-    public class EnemySpawner : ITickable, IEnemyProvider
+    public class EnemySpawner : ITickable, IEnemyProvider, IInitializable
     {
-        private readonly EnemyFactory _factory; // Используем новую фабрику
+        private readonly EnemyFactory _factory;
         private readonly WorldConfig _worldConfig;
         private readonly SignalBus _signalBus;
 
         private readonly List<EnemyModel> _activeEnemies = new();
-        // Реализация интерфейса: просто возвращаем наш приватный список
         public List<EnemyModel> ActiveEnemies => _activeEnemies;
         private float _spawnTimer;
 
@@ -23,33 +23,69 @@ namespace Game.Infrastructure
             _signalBus = signalBus;
         }
 
+        public void Initialize() { }
+
         public void Tick()
         {
-            _spawnTimer += Time.deltaTime;
+            float dt = Time.deltaTime;
 
-            if (_spawnTimer >= 2f && _activeEnemies.Count < _worldConfig.MaxEnemies)
-            {
-                SpawnEnemy(); // Переименовали метод
-                _spawnTimer = 0;
-            }
-
-            for (int i = 0; i < _activeEnemies.Count; i++)
+            for (int i = _activeEnemies.Count - 1; i >= 0; i--)
             {
                 var enemy = _activeEnemies[i];
-                enemy.Update(Time.deltaTime);
+
+                if (enemy.IsDead)
+                {
+                    Debug.Log($"[Spawner] Removing dead enemy: {enemy.Config.EnemyType}");
+                    HandleEnemyDeath(enemy);
+                    _activeEnemies.RemoveAt(i);
+                    continue;
+                }
+
+                enemy.Update(dt);
                 enemy.Body.TeleportIfOutOfBounds(_worldConfig.Width, _worldConfig.Height);
+            }
+
+            _spawnTimer += dt;
+            int primaryCount = _activeEnemies.Count(e => (e is AsteroidModel a && a.CanSplit) || e is UfoModel);
+
+            if (_spawnTimer >= 2f && primaryCount < _worldConfig.MaxEnemies)
+            {
+                SpawnRandomEnemy();
+                _spawnTimer = 0;
             }
         }
 
-        private void SpawnEnemy()
+        private void HandleEnemyDeath(EnemyModel enemy)
         {
-            var config = _worldConfig.Enemies[Random.Range(0, _worldConfig.Enemies.Count)];
+            // ЭТОТ СИГНАЛ ОБЯЗАН УНИЧТОЖАТЬ VIEW
+            _signalBus.Fire(new EnemyDestroyedSignal { Enemy = enemy });
+
+            if (enemy is AsteroidModel asteroid && asteroid.CanSplit)
+            {
+                var fragmentConfig = _worldConfig.Enemies.FirstOrDefault(e => 
+                    e.EnemyType == "Asteroid" && !e.CanSplit);
+
+                if (fragmentConfig != null)
+                {
+                    foreach (var data in asteroid.GetFragments())
+                    {
+                        var fragment = _factory.CreateFragment(data, fragmentConfig);
+                        _activeEnemies.Add(fragment);
+                        _signalBus.Fire(new EnemyCreatedSignal { Enemy = fragment });
+                    }
+                }
+            }
+        }
+
+        private void SpawnRandomEnemy()
+        {
+            var validConfigs = _worldConfig.Enemies.Where(c => c.CanSplit || c.EnemyType == "UFO").ToList();
+            if (validConfigs.Count == 0) return;
+
+            var config = validConfigs[Random.Range(0, validConfigs.Count)];
             var enemy = _factory.Create(config);
-
             _activeEnemies.Add(enemy);
-
-            // Просто передаем enemy. Никаких (AsteroidModel) или (Core.EnemyModel)
-            _signalBus.Fire(new EnemyCreatedSignal { Enemy = (Core.EnemyModel)enemy });
+            _signalBus.Fire(new EnemyCreatedSignal { Enemy = enemy });
         }
     }
 }

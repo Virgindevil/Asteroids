@@ -26,7 +26,9 @@ namespace Game.Core
     {
         public string EnemyType; // "AsteroidBig", "AsteroidSmall", "UFO"
         public float Speed;
+        public float Health;
         public int ScoreReward;
+        public bool CanSplit;
         public float CollisionRadius;
         public float Friction;
     }

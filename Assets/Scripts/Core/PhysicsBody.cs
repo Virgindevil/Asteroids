@@ -83,30 +83,27 @@ namespace Game.Core
             AngularVelocity = 0f;
         }
 
-        public void ResolvePushApart(ICollidable a, ICollidable b)
+        public static void ResolvePushApart(ICollidable a, ICollidable b)
         {
-            /*
-            Vector2 normal = (a.Body.Position - b.Body.Position).normalized;
+            Vector2 diff = a.Body.Position - b.Body.Position;
+            float distance = diff.magnitude;
+            if (distance < 0.0001f) return; // Защита от деления на 0
 
-            // Применяем импульс в противоположные стороны
-            a.Body.Velocity += normal * 2f;  // Сила отталкивания
-            b.Body.Velocity -= normal * 2f;
+            Vector2 normal = diff / distance;
 
-            // Опционально: добавляем небольшое затухание, чтобы не "разлетались" слишком сильно
-            a.Body.Velocity *= 0.95f;
-            b.Body.Velocity *= 0.95f;
-            */
+            // 1. Смена скоростей (отскок)
+            float impulse = 2f; 
+            a.Body.Velocity += normal * impulse;
+            b.Body.Velocity -= normal * impulse;
 
-            // Математика отскока (Рикошет)
-            Vector2 normal = (a.Body.Position - b.Body.Position).normalized;
-
-            // Отражаем вектора скоростей
-            a.Body.ReflectVelocity(normal);
-            b.Body.ReflectVelocity(-normal);
-
-            a.OnCollision(b);
-            b.OnCollision(a);
-
+            // 2. Мягкое раздвижение (Penetration Recovery)
+            // Это предотвратит лаги из-за того, что объекты застряли внутри друг друга
+            float overlap = (a.CollisionRadius + b.CollisionRadius) - distance;
+            if (overlap > 0)
+            {
+                a.Body.Position += normal * (overlap * 0.5f);
+                b.Body.Position -= normal * (overlap * 0.5f);
+            }
         }
     }
 }
