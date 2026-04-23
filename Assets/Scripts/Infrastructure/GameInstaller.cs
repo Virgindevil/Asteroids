@@ -38,6 +38,10 @@ namespace Game.Infrastructure
             Container.DeclareSignal<BulletDestroyedSignal>();
             Container.DeclareSignal<EnemyCreatedSignal>();
             Container.DeclareSignal<EnemyDestroyedSignal>();
+            Container.DeclareSignal<ScoreChangedSignal>();
+
+            // Регистрация менеджера очков
+            Container.BindInterfacesAndSelfTo<ScoreManager>().AsSingle();
             
             // Для врагов
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
