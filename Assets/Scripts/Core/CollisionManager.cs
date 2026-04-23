@@ -59,7 +59,7 @@ using Zenject;
             float radiusSum = a.CollisionRadius + b.CollisionRadius;
             
             // Если участвует пуля, увеличиваем область в 2 раза, чтобы точно попадать
-            if (a is BulletModel || b is BulletModel) radiusSum *= 2f; 
+            //if (a is BulletModel || b is BulletModel) radiusSum *= 2f; 
 
             return (a.Body.Position - b.Body.Position).sqrMagnitude <= (radiusSum * radiusSum);
         }
