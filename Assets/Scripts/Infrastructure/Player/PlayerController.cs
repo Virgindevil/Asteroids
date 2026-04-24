@@ -40,7 +40,9 @@ namespace Game.Infrastructure
             {
                 Shoot();
             }
-            
+
+            _model.UpdateBulletCooldown(Time.deltaTime);
+
             HandleLaser();
         }
 
@@ -60,10 +62,15 @@ namespace Game.Infrastructure
         
         private void Shoot()
         {
+            if (_model.CanShoot)
+            {
+                Vector2 shootDirection = _model.Body.Forward;
+                Vector2 spawnPosition = _model.Body.Position + shootDirection * 0.5f;
+                _pool.Spawn(spawnPosition, shootDirection);
+                _model.SetShootCooldown();
+            }
             // Используем Forward из физики (он обновляется в Tick через Rotation)
-            Vector2 shootDirection = _model.Body.Forward;
-            Vector2 spawnPosition = _model.Body.Position + shootDirection * 0.5f;
-            _pool.Spawn(spawnPosition, shootDirection);
+            
         }
 
         private void HandleLaser()

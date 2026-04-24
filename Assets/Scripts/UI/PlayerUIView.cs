@@ -11,13 +11,23 @@ namespace Game.UI
         [SerializeField] private TextMeshProUGUI _rotationText;
         [SerializeField] private TextMeshProUGUI _speedText;
         [SerializeField] private TextMeshProUGUI _laserText;
+        [SerializeField] private TextMeshProUGUI _scoreText;
 
+        private SignalBus _signalBus;
         private PlayerViewModel _viewModel;
 
         [Inject]
-        public void Construct(PlayerViewModel viewModel)
+        public void Construct(PlayerViewModel viewModel, SignalBus signalBus)
         {
             _viewModel = viewModel;
+            _signalBus = signalBus;
+        }
+
+        private void Start()
+        {
+            // Подписываемся на изменение счета
+            _signalBus.Subscribe<ScoreChangedSignal>(OnScoreChanged);
+            _scoreText.text = "0"; // Начальное значение
         }
 
         private void Update()
@@ -36,6 +46,17 @@ namespace Game.UI
             // Лазер (заряды и таймер пока в заглушке, скоро оживим)
 
             _laserText.text = _viewModel.LaserStatusText;
+        }
+
+
+        private void OnScoreChanged(ScoreChangedSignal signal)
+        {
+            _scoreText.text = signal.TotalScore.ToString();
+        }
+
+        private void OnDestroy()
+        {
+            _signalBus?.TryUnsubscribe<ScoreChangedSignal>(OnScoreChanged);
         }
     }
 }

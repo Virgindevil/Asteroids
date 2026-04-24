@@ -7,7 +7,6 @@ namespace Game.Core
         private readonly PlayerModel _model;
         private readonly WorldConfig _worldConfig;
 
-
         public PlayerViewModel(PlayerModel model, WorldConfig worldConfig)
         {
             _model = model;

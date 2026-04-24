@@ -9,9 +9,10 @@ namespace Game.Core
         public PhysicsBody Body { get; private set; }
         public PlayerConfig Config { get; private set; }
 
-        // ТЕПЕРЬ ОПЕРИРУЕМ ЗАРЯДАМИ
+        private float _shootTimer;
         public float LaserCharge { get; private set; } // От 0 до MaxLaserCharges
         public bool IsLaserActive { get; set; }
+        public bool CanShoot => _shootTimer <= 0;
 
         public int Health { get; private set; }
 
@@ -24,7 +25,7 @@ namespace Game.Core
             Health = (int)config.MaxHealth;
             Body = new PhysicsBody(Vector2.zero, config.Friction);
 
-            // Инициализация при спавне
+            _shootTimer = 0;
             LaserCharge = config.MaxLaserCharges;
         }
 
@@ -48,6 +49,11 @@ namespace Game.Core
             IsInvulnerable = false;
         }
 
+        public void SetShootCooldown()
+        {
+            _shootTimer = Config.ShootCooldown;
+        }
+
         public void OnCollision(ICollidable other)
         {
             if (IsInvulnerable) 
@@ -64,6 +70,14 @@ namespace Game.Core
 
                 // Запуск неуязвимости (как в оригинале)
                 SetInvulnerable(3f);
+            }
+        }
+
+        public void UpdateBulletCooldown(float dt)
+        {
+            if (!CanShoot)
+            {
+                _shootTimer -= dt;
             }
         }
 
