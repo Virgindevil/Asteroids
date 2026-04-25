@@ -18,5 +18,7 @@ namespace Game.Core
 
     public struct CollisionOccurredSignal { public UnityEngine.Vector2 Position; }
     
-    public class ScoreChangedSignal { public int TotalScore; }
+    public struct ScoreChangedSignal { public int TotalScore; }
+    
+    public struct InvincibleEffectActiveSignal { public bool IsActive; }
 }

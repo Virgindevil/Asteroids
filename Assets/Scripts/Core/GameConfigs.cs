@@ -19,6 +19,7 @@ namespace Game.Core
         public float LaserCooldown;
         public float BulletSpeed;
         public float ShootCooldown;
+        public float InvulnerabilityDuration;
     }
 
     [Serializable]

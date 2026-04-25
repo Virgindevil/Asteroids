@@ -42,7 +42,7 @@ namespace Game.Infrastructure
                 }
 
                 enemy.Update(dt);
-                enemy.Body.TeleportIfOutOfBounds(_worldConfig.Width, _worldConfig.Height);
+                enemy.Body.TeleportIfOutOfBounds(_worldConfig.Width+_worldConfig.Width/16, _worldConfig.Height+_worldConfig.Height/9);
             }
 
             _spawnTimer += dt;

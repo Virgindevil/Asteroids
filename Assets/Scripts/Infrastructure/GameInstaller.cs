@@ -39,6 +39,7 @@ namespace Game.Infrastructure
             Container.DeclareSignal<EnemyCreatedSignal>();
             Container.DeclareSignal<EnemyDestroyedSignal>();
             Container.DeclareSignal<ScoreChangedSignal>();
+            Container.DeclareSignal<InvincibleEffectActiveSignal>();
 
             // Регистрация менеджера очков
             Container.BindInterfacesAndSelfTo<ScoreManager>().AsSingle();

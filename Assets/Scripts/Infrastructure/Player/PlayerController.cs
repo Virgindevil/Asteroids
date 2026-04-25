@@ -51,7 +51,7 @@ namespace Game.Infrastructure
         {
             Vector2 moveDir = _input.GetMoveDirection();
             
-            if (moveDir.sqrMagnitude > 0.01f)
+            if (moveDir.sqrMagnitude > 0.01f && !_model.IsStanned)
             {
                 // Применяем силу движения. 
                 // Используем ускорение из конфига модели.
