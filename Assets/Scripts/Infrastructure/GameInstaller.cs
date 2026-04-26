@@ -47,6 +47,7 @@ namespace Game.Infrastructure
             // Для врагов
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
             
+            Container.Bind<EnemyFacade>().AsSingle();
 
         }
     }

@@ -87,5 +87,8 @@ namespace Game.Infrastructure
             _activeEnemies.Add(enemy);
             _signalBus.Fire(new EnemyCreatedSignal { Enemy = enemy });
         }
+        
+        public void AddEnemy(EnemyModel enemy) => _activeEnemies.Add(enemy);
+        public void RemoveEnemy(EnemyModel enemy) => _activeEnemies.Remove(enemy);
     }
 }

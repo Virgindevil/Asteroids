@@ -44,8 +44,8 @@ namespace Game.Core
 
         public void TeleportIfOutOfBounds(float width, float height, float radius = 0f)
         {
-            float halfW = width / 2f - radius;
-            float halfH = height / 2f - radius;
+            float halfW = width / 2f + radius;
+            float halfH = height / 2f + radius;
 
             Vector2 pos = Position;
 

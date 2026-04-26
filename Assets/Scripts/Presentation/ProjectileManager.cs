@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Core;
+using Game.Infrastructure;
 using UnityEngine;
 using Zenject;
 
@@ -11,22 +12,23 @@ namespace Game.Presentation
     {
         private readonly SignalBus _signalBus;
         private readonly ProjectileView.Factory _factory;
-        // Внедряем конфиг игрока
         private readonly PlayerConfig _playerConfig;
+        private readonly ProjectilePool _projectilePool;
 
         private readonly Dictionary<BulletModel, ProjectileView> _views = new();
 
         public List<BulletModel> ActiveProjectiles => _views.Keys.ToList();
 
-        // Добавляем PlayerConfig в конструктор
         public ProjectileManager(
             SignalBus signalBus,
             ProjectileView.Factory factory,
-            PlayerConfig playerConfig)
+            PlayerConfig playerConfig,
+            ProjectilePool projectilePool)
         {
             _signalBus = signalBus;
             _factory = factory;
             _playerConfig = playerConfig;
+            _projectilePool = projectilePool;
         }
 
         public void Initialize()
@@ -39,32 +41,32 @@ namespace Game.Presentation
         {
             float dt = Time.deltaTime;
             var bullets = _views.Keys.ToList();
+            var toDestroy = new List<BulletModel>();
 
             foreach (var bullet in bullets)
             {
-                // Пример использования: если скорость пули не задана в самой модели BulletModel,
-                // мы могли бы применять её здесь, но обычно скорость задается при создании пули.
-                // Однако, здесь мы можем использовать _playerConfig для логики валидации или модификаторов.
+                if (!bullet.IsActive) { toDestroy.Add(bullet); continue; }
 
                 bullet.Body.UpdatePhysics(dt);
                 bullet.LifeTime -= dt;
 
-                if (bullet.LifeTime <= 0 || !bullet.IsActive)
+                if (bullet.LifeTime <= 0)
                 {
-                    _signalBus.Fire(new BulletDestroyedSignal { Bullet = bullet });
+                    bullet.IsActive = false;
+                    toDestroy.Add(bullet);
                 }
             }
+
+            // Уничтожаем ПОСЛЕ итерации — чтобы CollisionManager успел проверить в этом кадре
+            foreach (var bullet in toDestroy)
+                _projectilePool.Release(bullet);
         }
 
         private void OnBulletCreated(BulletCreatedSignal signal)
         {
-            // Если BulletModel создается без начальной скорости, 
-            // мы можем принудительно установить её из конфига здесь:
-            //signal.Bullet.Body.Velocity = signal.Bullet.Body.Direction * _playerConfig.BulletSpeed;
-
             var view = _factory.Create();
             view.Initialize(signal.Bullet);
-            _views.Add(signal.Bullet, view);
+            _views[signal.Bullet] = view;
         }
 
         private void OnBulletDestroyed(BulletDestroyedSignal signal)
