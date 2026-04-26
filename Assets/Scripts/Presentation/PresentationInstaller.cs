@@ -35,6 +35,11 @@ namespace Game.Presentation
             
             // Для коллизий
             Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
+            
+            // MVVM
+            Container.Bind<GameOverViewModel>().AsSingle();
+            
+            Container.Bind<GameOverView>().FromComponentInHierarchy().AsSingle();
         }
     }
 }

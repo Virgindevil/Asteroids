@@ -21,4 +21,7 @@ namespace Game.Core
     public struct ScoreChangedSignal { public int TotalScore; }
     
     public struct InvincibleEffectActiveSignal { public bool IsActive; }
+    
+    public struct GameOverSignal { }
+    public struct PlayerRevivedSignal { }
 }

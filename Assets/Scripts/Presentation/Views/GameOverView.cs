@@ -1,0 +1,44 @@
+using UnityEngine;
+using UnityEngine.UI;
+using Zenject;
+using Game.Core;
+
+namespace Game.Presentation
+{
+    public class GameOverView : MonoBehaviour
+    {
+        [SerializeField] private Button _exitButton;
+        [SerializeField] private Button _continueButton;
+        [SerializeField] private GameObject _gameOverPanel;
+
+        private GameOverViewModel _viewModel;
+        private SignalBus _signalBus;
+
+        [Inject]
+        public void Construct(GameOverViewModel viewModel, SignalBus signalBus)
+        {
+            _viewModel = viewModel;
+            _signalBus = signalBus;
+        }
+
+        private void Start()
+        {
+            _gameOverPanel.SetActive(false);
+            
+            _exitButton.onClick.AddListener(_viewModel.OnExitClicked);
+            _continueButton.onClick.AddListener(_viewModel.OnContinueClicked);
+
+            _signalBus.Subscribe<GameOverSignal>(ShowPanel);
+            _signalBus.Subscribe<PlayerRevivedSignal>(HidePanel);
+        }
+
+        private void ShowPanel() => _gameOverPanel.SetActive(true);
+        private void HidePanel() => _gameOverPanel.SetActive(false);
+
+        private void OnDestroy()
+        {
+            _signalBus?.TryUnsubscribe<GameOverSignal>(ShowPanel);
+            _signalBus?.TryUnsubscribe<PlayerRevivedSignal>(HidePanel);
+        }
+    }
+}

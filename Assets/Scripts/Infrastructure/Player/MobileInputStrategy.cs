@@ -5,7 +5,6 @@ namespace Game.Infrastructure
 {
     public class MobileInputStrategy : IInputStrategy
     {
-        // Эти значения выставляет виртуальный джойстик на экране
         private Vector2 _moveDir;
         private Vector2 _lookDir;
         private bool _isShooting;

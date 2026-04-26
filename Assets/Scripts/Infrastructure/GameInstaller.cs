@@ -26,7 +26,11 @@ namespace Game.Infrastructure
             Container.Bind<ProjectilePool>().AsSingle();
             Container.Bind<EnemyFactory>().AsSingle();
 
-            Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
+            #if UNITY_ANDROID || UNITY_IOS
+                Container.Bind<IInputStrategy>().To<MobileInputStrategy>().AsSingle();
+            #else
+                Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
+            #endif
             Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
 
             // Регистрация типов сигналов
@@ -40,6 +44,14 @@ namespace Game.Infrastructure
             Container.DeclareSignal<EnemyDestroyedSignal>();
             Container.DeclareSignal<ScoreChangedSignal>();
             Container.DeclareSignal<InvincibleEffectActiveSignal>();
+            // Сигналы
+            Container.DeclareSignal<GameOverSignal>();
+            Container.DeclareSignal<PlayerRevivedSignal>();
+
+            // Сервисы
+            Container.Bind<IAdsService>().To<MockAdsService>().AsSingle();
+            Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
+
 
             // Регистрация менеджера очков
             Container.BindInterfacesAndSelfTo<ScoreManager>().AsSingle();

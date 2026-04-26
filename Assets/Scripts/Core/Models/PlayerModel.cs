@@ -74,8 +74,9 @@ namespace Game.Core
             if (other is EnemyModel enemy)
             {
                 // Отталкивание от врага
-                Vector2 normal = (Body.Position - enemy.Body.Position).normalized;
-                Body.Velocity += normal * 3f; // Игрок отталкивается сильнее
+                // Формула отражения вектора: v = v - 2 * (v ⋅ n) * n
+                Vector2 normal = (Body.Position - other.Body.Position).normalized;
+                Body.Velocity = Vector2.Reflect(Body.Velocity, normal) * 0.8f; // 0.8 - потеря энергии
                 enemy.Body.Velocity -= normal * 1.5f;
 
                 Debug.Log($"[Player] Collision with ENEMY: {enemy.Config.EnemyType}");
@@ -88,18 +89,29 @@ namespace Game.Core
         
         public void TakeDamage(int amount)
         {
-            if (IsInvulnerable) return;
+            if (IsInvulnerable || Health <= 0) return;
 
             Health -= amount;
             if (Health < 0) Health = 0;
 
-            // Отправляем сигнал об изменении здоровья
             _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
 
             if (Health > 0)
             {
-                SetInvulnerable(Config.InvulnerabilityDuration); // Берем длительность из конфига
+                SetInvulnerable(Config.InvulnerabilityDuration);
             }
+            else
+            {
+                // Игрок умер
+                _signalBus.Fire(new GameOverSignal());
+            }
+        }
+
+        private void Revive()
+        {
+            Health = (int)Config.MaxHealth;
+            _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
+            SetInvulnerable(3f); // Неуязвимость после возрождения
         }
 
         public void UpdateBulletCooldown(float dt)
