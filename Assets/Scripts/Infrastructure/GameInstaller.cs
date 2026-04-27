@@ -26,11 +26,21 @@ namespace Game.Infrastructure
             Container.Bind<ProjectilePool>().AsSingle();
             Container.Bind<EnemyFactory>().AsSingle();
 
-            #if UNITY_ANDROID || UNITY_IOS
-                Container.Bind<IInputStrategy>().To<MobileInputStrategy>().AsSingle();
+            // Заменяем старую строку регистрации ввода на эту логику:
+            #if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR 
+            // В редакторе тоже удобно оставить Mobile, чтобы тестировать мышкой кнопки
+            if (Application.isMobilePlatform || SystemInfo.deviceType == DeviceType.Handheld)
+            {
+                Container.BindInterfacesAndSelfTo<MobileInputStrategy>().AsSingle();
+            }
+            else
+            {
+                Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
+            }
             #else
                 Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
             #endif
+
             Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
 
             // Регистрация типов сигналов
@@ -49,7 +59,7 @@ namespace Game.Infrastructure
             Container.DeclareSignal<PlayerRevivedSignal>();
 
             // Сервисы
-            Container.Bind<IAdsService>().To<MockAdsService>().AsSingle();
+            Container.Bind<IAdsService>().To<AdMobService>().AsSingle();
             Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
 
 

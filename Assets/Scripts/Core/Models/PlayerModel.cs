@@ -29,9 +29,12 @@ namespace Game.Core
             _signalBus = signalBus;
             Health = (int)config.MaxHealth;
             Body = new PhysicsBody(Vector2.zero, config.Friction);
-
+    
             _shootTimer = 0;
             LaserCharge = config.MaxLaserCharges;
+
+            // ВОТ ЭТОЙ СТРОКИ НЕ ХВАТАЛО:
+            _signalBus.Subscribe<PlayerRevivedSignal>(Revive);
         }
         
         public void Accelerate(Vector2 direction, float deltaTime)
@@ -40,7 +43,20 @@ namespace Game.Core
             Vector2 force = direction.normalized * Config.MovementAcceleration * deltaTime;
             Body.AddForce(force);
         }
-
+        
+        // Метод OnRevived удаляем полностью, оставляем только этот:
+        private void Revive()
+        {
+            Health = (int)Config.MaxHealth;
+            IsStanned = false; // На всякий случай снимаем стан, если он завис
+    
+            // Оповещаем UI
+            _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
+    
+            SetInvulnerable(3f); // Даем неуязвимость после возрождения
+            Debug.Log("[PlayerModel] Здоровье восстановлено после возрождения");
+        }
+        
         public void SetInvulnerable(float duration)
         {
             RunInvulnerability(duration).Forget();
@@ -105,13 +121,6 @@ namespace Game.Core
                 // Игрок умер
                 _signalBus.Fire(new GameOverSignal());
             }
-        }
-
-        private void Revive()
-        {
-            Health = (int)Config.MaxHealth;
-            _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
-            SetInvulnerable(3f); // Неуязвимость после возрождения
         }
 
         public void UpdateBulletCooldown(float dt)

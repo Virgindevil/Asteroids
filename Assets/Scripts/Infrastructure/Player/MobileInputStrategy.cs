@@ -10,7 +10,15 @@ namespace Game.Infrastructure
         private bool _isShooting;
         private bool _isLaser;
 
-        public void SetMoveDirection(Vector2 dir) => _moveDir = dir;
+        public void SetMoveDirection(Vector2 dir) 
+        {
+            _moveDir = dir;
+            // Если мы двигаемся, то смотрим в сторону движения
+            if (dir.sqrMagnitude > 0.01f) 
+            {
+                _lookDir = dir; 
+            }
+        }
         public void SetLookDirection(Vector2 dir) => _lookDir = dir;
         public void SetShooting(bool value) => _isShooting = value;
         public void SetLaser(bool value) => _isLaser = value;
