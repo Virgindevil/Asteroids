@@ -25,8 +25,7 @@ namespace Game.Infrastructure
             Container.Bind<PlayerViewModel>().AsSingle();
             Container.Bind<ProjectilePool>().AsSingle();
             Container.Bind<EnemyFactory>().AsSingle();
-
-            // Заменяем старую строку регистрации ввода на эту логику:
+           
             #if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR 
             // В редакторе тоже удобно оставить Mobile, чтобы тестировать мышкой кнопки
             if (Application.isMobilePlatform || SystemInfo.deviceType == DeviceType.Handheld)
