@@ -3,11 +3,6 @@ using System.Collections.Generic;
 
 namespace Game.Core
 {
-    public class GameSettingsRoot
-    {
-        public PlayerConfig Player;
-        public WorldConfig World;
-    }
 
     [Serializable]
     public class PlayerConfig

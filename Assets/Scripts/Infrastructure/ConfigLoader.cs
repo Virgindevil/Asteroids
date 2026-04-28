@@ -1,42 +1,54 @@
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using Game.Core;
 using Newtonsoft.Json;
-using Zenject; 
+using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class ConfigLoader : IInitializable 
+    public class ConfigLoader : IInitializable
     {
-        public GameSettingsRoot Root { get; private set; }
+        public PlayerConfig Player { get; private set; }
+        public WorldConfig World { get; private set; }
+        public List<EnemyConfig> Enemies { get; private set; }
+
+        public ConfigLoader()
+        {
+            Player = LoadFile<PlayerConfig>("PlayerSettings.json");
+            World = LoadFile<WorldConfig>("WorldSettings.json");
+            Enemies = LoadFile<List<EnemyConfig>>("EnemiesSettings.json");
+
+            // Важная проверка! Если файлы не найдутся, вы увидите это сразу
+            if (Player == null || World == null || Enemies == null)
+                Debug.LogError("[ConfigLoader] Critical: One or more configs failed to load!");
+        }
 
         public void Initialize()
         {
-            Load();
+            LoadAll();
         }
 
-        private void Load()
+        private void LoadAll()
         {
-            string path = Path.Combine(Application.streamingAssetsPath, "GameSettings.json");
-            if (!File.Exists(path)) 
-                return;
+            Player = LoadFile<PlayerConfig>("PlayerSettings.json");
+            World = LoadFile<WorldConfig>("WorldSettings.json");
+            Enemies = LoadFile<List<EnemyConfig>>("EnemiesSettings.json");
 
-            string jsonContent = File.ReadAllText(path);
-            Root = JsonConvert.DeserializeObject<GameSettingsRoot>(jsonContent);
-            Debug.Log("<color=green>[ConfigLoader] Game Settings loaded successfully!</color>");
+            Debug.Log("<color=green>[ConfigLoader] All Settings loaded successfully!</color>");
         }
 
-        public void LoadManually()
+        private T LoadFile<T>(string fileName)
         {
-            string path = Path.Combine(Application.streamingAssetsPath, "GameSettings.json");
+            string path = Path.Combine(Application.streamingAssetsPath, fileName);
             if (!File.Exists(path))
             {
-                Debug.LogError($"Файл не найден: {path}");
-                return;
+                Debug.LogError($"[ConfigLoader] File not found: {path}");
+                return default;
             }
 
             string jsonContent = File.ReadAllText(path);
-            Root = JsonConvert.DeserializeObject<GameSettingsRoot>(jsonContent);
+            return JsonConvert.DeserializeObject<T>(jsonContent);
         }
     }
 }

@@ -44,23 +44,31 @@ namespace Game.Infrastructure
             });
         }
 
-        public void ShowRewardedVideo(Action onComplete)
+        public void ShowRewardedVideo(Action onReward, Action onClosed)
         {
             if (_rewardedAd != null && _rewardedAd.CanShowAd())
             {
-                _rewardedAd.Show((Reward reward) => {
-                    Debug.Log("[AdMob] Игрок получил награду.");
-                    onComplete?.Invoke();
-                    LoadRewardedAd(); // Загружаем следующую рекламу заранее
+                // 1. Подписываемся на закрытие
+                _rewardedAd.OnAdFullScreenContentClosed += () =>
+                {
+                    Debug.Log("Реклама закрыта пользователем");
+                    onClosed?.Invoke();
+                    LoadRewardedAd(); // Загружаем следующую
+                };
+
+                // 2. Показываем и обрабатываем награду
+                _rewardedAd.Show((Reward reward) =>
+                {
+                    Debug.Log("Награда получена");
+                    onReward?.Invoke();
                 });
             }
             else
             {
-                Debug.LogWarning("[AdMob] Реклама еще не готова. Выполняем действие по умолчанию (для теста).");
-                // В демо можно оставить вызов действия, но в релизе лучше показать UI "Реклама загружается"
-                onComplete?.Invoke(); 
+                LoadRewardedAd();
             }
         }
+
 
         public void Dispose()
         {

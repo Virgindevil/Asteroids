@@ -1,6 +1,7 @@
-using Zenject;
 using Game.Core;
+using System.Collections.Generic;
 using UnityEngine;
+using Zenject;
 
 namespace Game.Infrastructure
 {
@@ -10,37 +11,34 @@ namespace Game.Infrastructure
         {
             SignalBusInstaller.Install(Container);
 
-            // 1. Создаем загрузчик и СРАЗУ вызываем загрузку
-            var configLoader = new ConfigLoader();
-            configLoader.LoadManually(); // Создадим этот метод сейчас
+            bool useMobileInput = Application.isMobilePlatform || Application.isEditor;
 
-            // 2. Биндим сам загрузчик и уже готовые данные
-            Container.Bind<ConfigLoader>().FromInstance(configLoader).AsSingle();
+            // 1. Создаем лоадер. Конструктор сразу загрузит файлы.
+            var loader = new ConfigLoader();
 
-            Container.Bind<PlayerConfig>().FromInstance(configLoader.Root.Player).AsSingle();
-            Container.Bind<WorldConfig>().FromInstance(configLoader.Root.World).AsSingle();
+            // 2. Биндим сами данные. 
+            // Используйте IfNotBound, чтобы избежать конфликтов, если они есть
+            Container.Bind<PlayerConfig>().FromInstance(loader.Player).AsSingle();
+            Container.Bind<WorldConfig>().FromInstance(loader.World).AsSingle();
+            Container.Bind<List<EnemyConfig>>().FromInstance(loader.Enemies).AsSingle();
 
-            // 3. Остальные зависимости
+            // 4. Все остальное
+            Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
             Container.Bind<PlayerModel>().AsSingle();
             Container.Bind<PlayerViewModel>().AsSingle();
             Container.Bind<ProjectilePool>().AsSingle();
             Container.Bind<EnemyFactory>().AsSingle();
-           
-            #if UNITY_ANDROID || UNITY_IOS || UNITY_EDITOR 
-            // В редакторе тоже удобно оставить Mobile, чтобы тестировать мышкой кнопки
-            if (Application.isMobilePlatform || SystemInfo.deviceType == DeviceType.Handheld)
+
+            if (useMobileInput)
             {
+                // Важно: Биндим и как интерфейс, и как конкретный класс, 
+                // чтобы джойстик мог сделать (inputStrategy as MobileInputStrategy)
                 Container.BindInterfacesAndSelfTo<MobileInputStrategy>().AsSingle();
             }
             else
             {
                 Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
             }
-            #else
-                Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
-            #endif
-
-            Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
 
             // Регистрация типов сигналов
             Container.DeclareSignal<PlayerHealthChangedSignal>();
@@ -69,6 +67,8 @@ namespace Game.Infrastructure
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
             
             Container.Bind<EnemyFacade>().AsSingle();
+
+
 
         }
     }

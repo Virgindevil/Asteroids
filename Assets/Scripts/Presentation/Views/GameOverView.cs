@@ -32,7 +32,11 @@ namespace Game.Presentation
             _signalBus.Subscribe<PlayerRevivedSignal>(HidePanel);
         }
 
-        private void ShowPanel() => _gameOverPanel.SetActive(true);
+        private void ShowPanel()
+        {
+            _viewModel.OnGameOver();
+            _gameOverPanel.SetActive(true);
+        }    
         private void HidePanel() => _gameOverPanel.SetActive(false);
 
         private void OnDestroy()

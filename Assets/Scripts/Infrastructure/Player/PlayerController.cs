@@ -26,6 +26,8 @@ namespace Game.Infrastructure
         // Каждый кадр: Ввод и Поворот (для плавности визуализации)
         public void Tick()
         {
+            if (Time.timeScale <= 0f) return;
+
             // 1. Поворот: смотрим на мышь
             Vector2 playerScreenPos = Camera.main.WorldToScreenPoint(_model.Body.Position);
             Vector2 lookDir = _input.GetLookDirection(playerScreenPos);
@@ -92,15 +94,13 @@ namespace Game.Infrastructure
             _model.IsLaserActive = true;
             _signalBus.Fire(new LaserStateChangedSignal { IsActive = true });
 
-            // Длительность одного выстрела лазера (например, 0.8 сек)
-            // Можно тоже вынести в JSON как LaserDuration
-            await UniTask.Delay(TimeSpan.FromSeconds(0.8f));
+            // Используем DeltaTime, чтобы пауза останавливала таймер лазера
+            await UniTask.Delay(TimeSpan.FromSeconds(0.8f), delayType: DelayType.DeltaTime);
 
             _model.IsLaserActive = false;
             _signalBus.Fire(new LaserStateChangedSignal { IsActive = false });
 
-            // Небольшая пауза между импульсами, чтобы лазер не сливался в одну линию
-            await UniTask.Delay(TimeSpan.FromSeconds(0.1f));
+            await UniTask.Delay(TimeSpan.FromSeconds(0.1f), delayType: DelayType.DeltaTime);
 
             _isProcessingLaser = false;
         }

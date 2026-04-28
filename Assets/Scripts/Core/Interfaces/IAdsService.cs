@@ -4,6 +4,6 @@ namespace Game.Core
 {
     public interface IAdsService
     {
-        void ShowRewardedVideo(Action onComplete);
+        void ShowRewardedVideo(Action onReward, Action onClosed);
     }
 }

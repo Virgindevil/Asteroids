@@ -10,16 +10,18 @@ namespace Game.Infrastructure
     {
         private readonly EnemyFactory _factory;
         private readonly WorldConfig _worldConfig;
+        private readonly List<EnemyConfig> _enemyConfigs; // Новое поле
         private readonly SignalBus _signalBus;
 
         private readonly List<EnemyModel> _activeEnemies = new();
         public List<EnemyModel> ActiveEnemies => _activeEnemies;
         private float _spawnTimer;
 
-        public EnemySpawner(EnemyFactory factory, WorldConfig worldConfig, SignalBus signalBus)
+        public EnemySpawner(EnemyFactory factory, WorldConfig worldConfig, List<EnemyConfig> enemyConfigs, SignalBus signalBus)
         {
             _factory = factory;
             _worldConfig = worldConfig;
+            _enemyConfigs = enemyConfigs;
             _signalBus = signalBus;
         }
 
@@ -62,8 +64,7 @@ namespace Game.Infrastructure
 
             if (enemy is AsteroidModel asteroid && asteroid.CanSplit)
             {
-                var fragmentConfig = _worldConfig.Enemies.FirstOrDefault(e => 
-                    e.EnemyType == "Asteroid" && !e.CanSplit);
+                var fragmentConfig = _enemyConfigs.FirstOrDefault(e => e.EnemyType == "Asteroid" && !e.CanSplit);
 
                 if (fragmentConfig != null)
                 {
@@ -79,7 +80,8 @@ namespace Game.Infrastructure
 
         private void SpawnRandomEnemy()
         {
-            var validConfigs = _worldConfig.Enemies.Where(c => c.CanSplit || c.EnemyType == "UFO").ToList();
+            // Берем только "первичных" врагов из списка конфигов
+            var validConfigs = _enemyConfigs.Where(c => c.CanSplit || c.EnemyType == "UFO").ToList();
             if (validConfigs.Count == 0) return;
 
             var config = validConfigs[Random.Range(0, validConfigs.Count)];
@@ -87,8 +89,9 @@ namespace Game.Infrastructure
             _activeEnemies.Add(enemy);
             _signalBus.Fire(new EnemyCreatedSignal { Enemy = enemy });
         }
-        
+
         public void AddEnemy(EnemyModel enemy) => _activeEnemies.Add(enemy);
         public void RemoveEnemy(EnemyModel enemy) => _activeEnemies.Remove(enemy);
+
     }
 }

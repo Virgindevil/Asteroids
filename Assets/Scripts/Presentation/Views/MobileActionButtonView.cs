@@ -23,7 +23,8 @@ namespace Game.Presentation
         private void Start()
         {
             // Скрываем кнопки, если мы не на мобилках
-            gameObject.SetActive(Application.isMobilePlatform);
+            bool isMobile = Application.isMobilePlatform || Application.isEditor;
+            gameObject.SetActive(isMobile);
         }
 
         public void OnPointerDown(PointerEventData eventData)
