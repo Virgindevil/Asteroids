@@ -21,7 +21,7 @@ namespace Game.Presentation
             _signalBus = signalBus;
         }
 
-        private void Start()
+        private void Awake()
         {
             _gameOverPanel.SetActive(false);
             
@@ -44,5 +44,6 @@ namespace Game.Presentation
             _signalBus?.TryUnsubscribe<GameOverSignal>(ShowPanel);
             _signalBus?.TryUnsubscribe<PlayerRevivedSignal>(HidePanel);
         }
+
     }
 }

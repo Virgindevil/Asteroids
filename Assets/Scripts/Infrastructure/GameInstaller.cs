@@ -11,7 +11,7 @@ namespace Game.Infrastructure
         {
             SignalBusInstaller.Install(Container);
 
-            bool useMobileInput = Application.isMobilePlatform || Application.isEditor;
+            bool useMobileInput = Application.isMobilePlatform ;
 
             // 1. Создаем лоадер. Конструктор сразу загрузит файлы.
             var loader = new ConfigLoader();

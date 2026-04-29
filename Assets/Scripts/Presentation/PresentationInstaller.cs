@@ -39,7 +39,8 @@ namespace Game.Presentation
             // MVVM
             Container.Bind<GameOverViewModel>().AsSingle();
             
-            Container.Bind<GameOverView>().FromComponentInHierarchy().AsSingle();
+            Container.BindInterfacesAndSelfTo<GameOverView>().FromComponentInHierarchy().AsSingle();
+
         }
     }
 }

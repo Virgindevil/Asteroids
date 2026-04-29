@@ -15,11 +15,15 @@ namespace Game.Infrastructure
 
         public AdMobService()
         {
+#if UNITY_ANDROID || UNITY_IOS
             // Инициализация SDK при старте
             MobileAds.Initialize(status => {
                 Debug.Log("[AdMob] SDK инициализирован.");
                 LoadRewardedAd();
             });
+#else
+            Debug.Log("[AdMob] Platform not supported (Stub used)");
+#endif
         }
 
         public void LoadRewardedAd()
@@ -46,6 +50,7 @@ namespace Game.Infrastructure
 
         public void ShowRewardedVideo(Action onReward, Action onClosed)
         {
+#if UNITY_ANDROID || UNITY_IOS
             if (_rewardedAd != null && _rewardedAd.CanShowAd())
             {
                 // 1. Подписываемся на закрытие
@@ -67,6 +72,12 @@ namespace Game.Infrastructure
             {
                 LoadRewardedAd();
             }
+#else
+            // Заглушка для ПК: сразу даем награду, чтобы можно было тестировать
+            Debug.Log("[AdMob] Skipping AD on PC - giving reward automatically");
+            onReward?.Invoke();
+            onClosed?.Invoke();
+#endif
         }
 
 
