@@ -5,12 +5,12 @@ namespace Game.Core
     public class PlayerViewModel
     {
         private readonly PlayerModel _model;
-        private readonly WorldConfig _worldConfig;
+        private readonly MapService _mapService;
 
-        public PlayerViewModel(PlayerModel model, WorldConfig worldConfig)
+        public PlayerViewModel(PlayerModel model, WorldConfig worldConfig, MapService mapService)
         {
             _model = model;
-            _worldConfig = worldConfig;
+            _mapService = mapService;
         }
 
         // Пробрасываем данные для отображения
@@ -28,11 +28,11 @@ namespace Game.Core
         public void Update(float deltaTime)
         {
             // Безопасная проверка: если чего-то нет, просто не считаем физику в этом кадре
-            if (_model?.Body == null || _worldConfig == null) 
+            if (_model?.Body == null) 
                 return;
 
             _model.Body.UpdatePhysics(deltaTime);
-            _model.Body.TeleportIfOutOfBounds(_worldConfig.Width, _worldConfig.Height);
+            _model.Body.TeleportIfOutOfBounds(_mapService.Width, _mapService.Height);
         }
 
         // Возвращаем остаток времени до восстановления СЛЕДУЮЩЕГО заряда
@@ -61,6 +61,11 @@ namespace Game.Core
                 float secondsLeft = (1f - RechargeProgress) * _model.Config.LaserCooldown;
                 return $"LASER: {ReadyCharges} | NEXT: {secondsLeft:F1}s";
             }
+        }
+
+        public float GetChargeForSlider(int index)
+        {
+            return Mathf.Clamp01(_model.LaserCharge - index);
         }
     }
 }

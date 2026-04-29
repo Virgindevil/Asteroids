@@ -7,13 +7,13 @@ namespace Game.Infrastructure
     public class EnemyFactory
     {
         private readonly PlayerModel _player;
-        private readonly WorldConfig _worldConfig;
+        private readonly MapService _mapService;
         private readonly SignalBus _signalBus;
 
-        public EnemyFactory(PlayerModel player, WorldConfig worldConfig, SignalBus signalBus)
+        public EnemyFactory(PlayerModel player, MapService mapService, SignalBus signalBus)
         {
             _player = player;
-            _worldConfig = worldConfig;
+            _mapService = mapService;
             _signalBus = signalBus;
         }
 
@@ -45,8 +45,8 @@ namespace Game.Infrastructure
         {
             // Летим в сторону центра с разбросом
             Vector2 targetPos = new Vector2(
-                Random.Range(-_worldConfig.Width / 4, _worldConfig.Width / 4),
-                Random.Range(-_worldConfig.Height / 4, _worldConfig.Height / 4)
+                Random.Range(-_mapService.Width / 4, _mapService.Width / 4),
+                Random.Range(-_mapService.Height / 4, _mapService.Height / 4)
             );
 
             return (targetPos - spawnPos).normalized * speed;
@@ -54,8 +54,8 @@ namespace Game.Infrastructure
 
         private Vector2 GetRandomSpawnPosition()
         {
-            float w = _worldConfig.Width / 2f + 1f; // +1 метр за границу
-            float h = _worldConfig.Height / 2f + 1f;
+            float w = _mapService.Width / 2f + 1f; // +1 метр за границу
+            float h = _mapService.Height / 2f + 1f;
 
             // Выбираем случайную сторону: 0-верх, 1-низ, 2-лево, 3-право
             int side = Random.Range(0, 4);

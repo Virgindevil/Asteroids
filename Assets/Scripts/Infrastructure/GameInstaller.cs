@@ -28,6 +28,7 @@ namespace Game.Infrastructure
             Container.Bind<PlayerViewModel>().AsSingle();
             Container.Bind<ProjectilePool>().AsSingle();
             Container.Bind<EnemyFactory>().AsSingle();
+            Container.BindInterfacesAndSelfTo<MapService>().AsSingle();
 
             if (useMobileInput)
             {

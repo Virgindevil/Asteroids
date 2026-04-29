@@ -84,7 +84,7 @@ namespace Game.Core
 
         public void OnCollision(ICollidable other)
         {
-            if (IsInvulnerable) 
+            if (IsInvulnerable || Health <= 0) 
                 return;
 
             if (other is EnemyModel enemy)
@@ -99,7 +99,10 @@ namespace Game.Core
 
                 // Запуск неуязвимости (как в оригинале)
                 TakeDamage(1);
-                SetInvulnerable(3f);
+                if (Health > 0)
+                {
+                    SetInvulnerable(Config.InvulnerabilityDuration);
+                }
             }
         }
         
@@ -108,15 +111,10 @@ namespace Game.Core
             if (IsInvulnerable || Health <= 0) return;
 
             Health -= amount;
-            if (Health < 0) Health = 0;
 
             _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
 
-            if (Health > 0)
-            {
-                SetInvulnerable(Config.InvulnerabilityDuration);
-            }
-            else
+            if (Health <= 0)
             {
                 // Игрок умер
                 _signalBus.Fire(new GameOverSignal());

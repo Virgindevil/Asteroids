@@ -10,6 +10,7 @@ namespace Game.Infrastructure
     {
         private readonly EnemyFactory _factory;
         private readonly WorldConfig _worldConfig;
+        private readonly MapService _mapService;
         private readonly List<EnemyConfig> _enemyConfigs; // Новое поле
         private readonly SignalBus _signalBus;
 
@@ -17,10 +18,11 @@ namespace Game.Infrastructure
         public List<EnemyModel> ActiveEnemies => _activeEnemies;
         private float _spawnTimer;
 
-        public EnemySpawner(EnemyFactory factory, WorldConfig worldConfig, List<EnemyConfig> enemyConfigs, SignalBus signalBus)
+        public EnemySpawner(EnemyFactory factory, WorldConfig worldConfig, List<EnemyConfig> enemyConfigs, SignalBus signalBus, MapService mapService)
         {
             _factory = factory;
             _worldConfig = worldConfig;
+            _mapService = mapService;
             _enemyConfigs = enemyConfigs;
             _signalBus = signalBus;
         }
@@ -44,7 +46,7 @@ namespace Game.Infrastructure
                 }
 
                 enemy.Update(dt);
-                enemy.Body.TeleportIfOutOfBounds(_worldConfig.Width+_worldConfig.Width/16, _worldConfig.Height+_worldConfig.Height/9);
+                enemy.Body.TeleportIfOutOfBounds(_mapService.Width+enemy.Config.CollisionRadius+1, _mapService.Height + enemy.Config.CollisionRadius+1);
             }
 
             _spawnTimer += dt;

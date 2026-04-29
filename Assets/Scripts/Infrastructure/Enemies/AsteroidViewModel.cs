@@ -5,12 +5,12 @@ namespace Game.Core
     public class AsteroidViewModel
     {
         private readonly EnemyModel _model;
-        private readonly WorldConfig _worldConfig;
+        private readonly MapService _mapService;
 
-        public AsteroidViewModel(EnemyModel model, WorldConfig worldConfig)
+        public AsteroidViewModel(EnemyModel model, MapService mapService)
         {
             _model = model;
-            _worldConfig = worldConfig;
+            _mapService = mapService;
         }
 
         public Vector2 Position => _model.Body.Position;
@@ -20,7 +20,7 @@ namespace Game.Core
         {
             _model.Update(dt);
             // Астероиды тоже должны телепортироваться при выходе за границы ?
-            _model.Body.TeleportIfOutOfBounds(_worldConfig.Width, _worldConfig.Height);
+            _model.Body.TeleportIfOutOfBounds(_mapService.Width, _mapService.Height);
         }
     }
 }
