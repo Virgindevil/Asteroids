@@ -24,7 +24,7 @@ namespace Game.Presentation
         
         private void Start()
         {
-            bool isMobile = Application.isMobilePlatform || Application.isEditor;
+            bool isMobile = Application.isMobilePlatform;
             gameObject.SetActive(isMobile);
         }
         
