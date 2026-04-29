@@ -116,6 +116,7 @@ namespace Game.Core
 
             if (Health <= 0)
             {
+                IsInvulnerable = false;
                 // Игрок умер
                 _signalBus.Fire(new GameOverSignal());
             }
