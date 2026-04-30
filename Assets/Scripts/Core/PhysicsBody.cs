@@ -11,9 +11,9 @@ namespace Game.Core
         
         public float Speed => Velocity.magnitude;
         public Vector2 Forward => new Vector2(
-            Mathf.Cos(Rotation * Mathf.Deg2Rad),
-            Mathf.Sin(Rotation * Mathf.Deg2Rad)
-        ).normalized;
+    Mathf.Cos((Rotation) * Mathf.Deg2Rad),
+    Mathf.Sin((Rotation) * Mathf.Deg2Rad)
+).normalized;
 
         public const int RoundDegree = 360;
         private const float _timeMultiplayer = 10f;
@@ -83,27 +83,49 @@ namespace Game.Core
             AngularVelocity = 0f;
         }
 
-        public static void ResolvePushApart(ICollidable a, ICollidable b)
+        public static void ResolvePushApart(ICollidable a, ICollidable b, float bounce = 0.8f)
         {
+            // 1. Считаем вектор между объектами
             Vector2 diff = a.Body.Position - b.Body.Position;
             float distance = diff.magnitude;
-            if (distance < 0.0001f) return; // Защита от деления на 0
+
+            // Защита от деления на ноль, если объекты в одной точке
+            if (distance < 0.0001f)
+            {
+                a.Body.Position += new Vector2(0.01f, 0); // Чуть-чуть расталкиваем
+                return;
+            }
 
             Vector2 normal = diff / distance;
 
-            // 1. Смена скоростей (отскок)
-            float impulse = 2f; 
-            a.Body.Velocity += normal * impulse;
-            b.Body.Velocity -= normal * impulse;
+            // --- ЛОГИКА ОТСКОКА (Reflect) ---
+            // Находим относительную скорость (как быстро они сближаются)
+            Vector2 relativeVelocity = a.Body.Velocity - b.Body.Velocity;
+            float velocityAlongNormal = Vector2.Dot(relativeVelocity, normal);
 
-            // 2. Мягкое раздвижение (Penetration Recovery)
-            // Это предотвратит лаги из-за того, что объекты застряли внутри друг друга
+            // Если объекты уже разлетаются в разные стороны, импульс не нужен
+            if (velocityAlongNormal < 0)
+            {
+                // Вычисляем силу импульса (упрощенная модель без учета массы)
+                float j = -(1 + bounce) * velocityAlongNormal;
+                j /= 2; // Делим на 2, так как распределяем силу между двумя телами
+
+                Vector2 impulse = j * normal;
+                a.Body.Velocity += impulse;
+                b.Body.Velocity -= impulse;
+            }
+
+            // --- ЛОГИКА РАЗДВИЖЕНИЯ (Penetration Recovery) ---
             float overlap = (a.CollisionRadius + b.CollisionRadius) - distance;
             if (overlap > 0)
             {
-                a.Body.Position += normal * (overlap * 0.5f);
-                b.Body.Position -= normal * (overlap * 0.5f);
+                // Мягко разводим объекты, чтобы они не дрожали и не застревали
+                const float percent = 0.5f; // На сколько сильно выталкивать за один кадр
+                Vector2 correction = normal * (overlap * percent);
+                a.Body.Position += correction;
+                b.Body.Position -= correction;
             }
         }
+
     }
 }

@@ -13,10 +13,24 @@ public class UfoModel : EnemyModel
 
     public override void Update(float dt)
     {
-        // Логика НЛО: летим не просто прямо, а немного доворачиваем к игроку
+        // 1. Движение к игроку (плавный доворот вектора скорости)
         Vector2 directionToPlayer = (_player.Body.Position - Body.Position).normalized;
         Body.Velocity = Vector2.Lerp(Body.Velocity, directionToPlayer * Config.Speed, dt * 0.5f);
 
+        // 2. Поворот на игрока
+        if (directionToPlayer.sqrMagnitude > 0.001f)
+        {
+            // Вычисляем целевой угол в градусах
+            float targetAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
+
+            // Если НЛО должно смотреть «носом» спрайта, и он нарисован смотрящим вверх:
+            targetAngle -= 90f; 
+
+            // Плавно поворачиваем (LerpAngle правильно обрабатывает переход через 360/0)
+            Body.Rotation = Mathf.LerpAngle(Body.Rotation, targetAngle, dt * 2f);
+        }
+
+        // 3. Обсчет физики (позиция и трение)
         Body.UpdatePhysics(dt);
     }
 

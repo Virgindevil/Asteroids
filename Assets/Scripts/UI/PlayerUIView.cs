@@ -10,7 +10,6 @@ namespace Game.UI
         [SerializeField] private TextMeshProUGUI _coordsText;
         [SerializeField] private TextMeshProUGUI _rotationText;
         [SerializeField] private TextMeshProUGUI _speedText;
-        [SerializeField] private TextMeshProUGUI _laserText;
         [SerializeField] private TextMeshProUGUI _scoreText;
 
         private SignalBus _signalBus;
@@ -42,10 +41,6 @@ namespace Game.UI
 
             // Мгновенная скорость
             _speedText.text = $"SPEED: \n{_viewModel.Speed:F2} m/s";
-
-            // Лазер (заряды и таймер пока в заглушке, скоро оживим)
-
-            _laserText.text = _viewModel.LaserStatusText;
         }
 
 

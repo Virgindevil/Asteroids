@@ -84,20 +84,15 @@ namespace Game.Core
 
         public void OnCollision(ICollidable other)
         {
-            if (IsInvulnerable || Health <= 0) 
+            if (IsInvulnerable || Health <= 0)
                 return;
 
+            // Одной строкой решаем всю физику столкновения
+            PhysicsBody.ResolvePushApart(this, other, 0.8f);
+
+            // Оставляем только логику урона
             if (other is EnemyModel enemy)
             {
-                // Отталкивание от врага
-                // Формула отражения вектора: v = v - 2 * (v ⋅ n) * n
-                Vector2 normal = (Body.Position - other.Body.Position).normalized;
-                Body.Velocity = Vector2.Reflect(Body.Velocity, normal) * 0.8f; // 0.8 - потеря энергии
-                enemy.Body.Velocity -= normal * 1.5f;
-
-                Debug.Log($"[Player] Collision with ENEMY: {enemy.Config.EnemyType}");
-
-                // Запуск неуязвимости (как в оригинале)
                 TakeDamage(1);
                 if (Health > 0)
                 {
@@ -105,7 +100,7 @@ namespace Game.Core
                 }
             }
         }
-        
+
         public void TakeDamage(int amount)
         {
             if (IsInvulnerable || Health <= 0) return;
