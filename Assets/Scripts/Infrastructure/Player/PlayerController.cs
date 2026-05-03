@@ -6,8 +6,9 @@ using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class PlayerController : ITickable, IFixedTickable
+    public class PlayerController : ITickable, IFixedTickable, IInitializable, IDisposable
     {
+        private Camera _camera;
         private readonly PlayerModel _model;
         private readonly IInputStrategy _input;
         private readonly ProjectilePool _pool;
@@ -22,29 +23,42 @@ namespace Game.Infrastructure
             _pool = pool;
             _signalBus = signalBus;
         }
+        
+        public void Initialize()
+        {
+            _camera = Camera.main;
+            _signalBus.Subscribe<PlayerRevivedSignal>(_model.Revive);
+            _signalBus.Subscribe<PlayerHealthChangedSignal>(OnHealthChanged);
+        }
+        
+        private void OnHealthChanged(PlayerHealthChangedSignal signal)
+        {
+            if (signal.CurrentHealth <= 0)
+                _signalBus.Fire(new GameOverSignal());
+        }
+        
+        public void Dispose()
+        {
+            _signalBus.TryUnsubscribe<PlayerRevivedSignal>(_model.Revive);
+            _signalBus.TryUnsubscribe<PlayerHealthChangedSignal>(OnHealthChanged);
+        }
 
         // Каждый кадр: Ввод и Поворот (для плавности визуализации)
         public void Tick()
         {
             if (Time.timeScale <= 0f) return;
 
-            // 1. Поворот: смотрим на мышь
-            Vector2 playerScreenPos = Camera.main.WorldToScreenPoint(_model.Body.Position);
+            // Используем закешированную камеру вместо Camera.main
+            Vector2 playerScreenPos = _camera.WorldToScreenPoint(_model.Body.Position);
             Vector2 lookDir = _input.GetLookDirection(playerScreenPos);
-    
-            if (lookDir.sqrMagnitude > 0.01f)
-            {
-                _model.Body.Rotation = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
-            }
 
-            // 2. Стрельба
+            if (lookDir.sqrMagnitude > 0.01f)
+                _model.Body.Rotation = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
+
             if (_input.IsShooting())
-            {
                 Shoot();
-            }
 
             _model.UpdateBulletCooldown(Time.deltaTime);
-
             HandleLaser();
         }
 
@@ -52,11 +66,8 @@ namespace Game.Infrastructure
         public void FixedTick()
         {
             Vector2 moveDir = _input.GetMoveDirection();
-            
-            if (moveDir.sqrMagnitude > 0.01f && !_model.IsStanned)
+            if (moveDir.sqrMagnitude > 0.01f && !_model.IsStunned)
             {
-                // Применяем силу движения. 
-                // Используем ускорение из конфига модели.
                 float accel = _model.Config.MovementAcceleration;
                 _model.Body.AddForce(moveDir * accel * Time.fixedDeltaTime);
             }
@@ -71,19 +82,13 @@ namespace Game.Infrastructure
                 _pool.Spawn(spawnPosition, shootDirection);
                 _model.SetShootCooldown();
             }
-            // Используем Forward из физики (он обновляется в Tick через Rotation)
-            
         }
 
         private void HandleLaser()
         {
             _model.UpdateLaser(Time.deltaTime);
-
-            // Если игрок хочет стрелять, мы не заняты прошлым выстрелом и есть заряд
             if (_input.IsLaserActive() && !_isProcessingLaser && _model.LaserCharge >= 1f)
-            {
                 FireLaserPulse().Forget();
-            }
         }
 
         private async UniTaskVoid FireLaserPulse()
@@ -94,7 +99,6 @@ namespace Game.Infrastructure
             _model.IsLaserActive = true;
             _signalBus.Fire(new LaserStateChangedSignal { IsActive = true });
 
-            // Используем DeltaTime, чтобы пауза останавливала таймер лазера
             await UniTask.Delay(TimeSpan.FromSeconds(0.8f), delayType: DelayType.DeltaTime);
 
             _model.IsLaserActive = false;

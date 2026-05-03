@@ -33,11 +33,9 @@ namespace Game.Core
 
         public void UpdatePhysics(float deltaTime)
         {
-            // Линейное движение с трением
             Velocity *= Mathf.Pow(_friction, deltaTime * _timeMultiplayer);
             Position += Velocity * deltaTime;
 
-            // Вращение с трением
             AngularVelocity *= Mathf.Pow(_angularFriction, deltaTime * _timeMultiplayer);
             Rotation = Mathf.Repeat(Rotation + AngularVelocity * deltaTime, RoundDegree);
         }
@@ -62,20 +60,6 @@ namespace Game.Core
             Position = pos;
         }
 
-        public static bool CheckCircleCollision(
-            Vector2 a, float radiusA,
-            Vector2 b, float radiusB)
-        {
-            float distSqr = (b - a).sqrMagnitude;
-            float minDistSqr = (radiusA + radiusB) * (radiusA + radiusB);
-            return distSqr <= minDistSqr;
-        }
-
-        public void ReflectVelocity(Vector2 normal, float bounceMultiplier = 0.8f)
-        {
-            Velocity = Vector2.Reflect(Velocity, normal) * bounceMultiplier;
-        }
-
         public void ResetState(Vector2 newPos, Vector2 newVel = default)
         {
             Position = newPos;
@@ -98,29 +82,23 @@ namespace Game.Core
 
             Vector2 normal = diff / distance;
 
-            // --- ЛОГИКА ОТСКОКА (Reflect) ---
-            // Находим относительную скорость (как быстро они сближаются)
             Vector2 relativeVelocity = a.Body.Velocity - b.Body.Velocity;
             float velocityAlongNormal = Vector2.Dot(relativeVelocity, normal);
 
-            // Если объекты уже разлетаются в разные стороны, импульс не нужен
             if (velocityAlongNormal < 0)
             {
-                // Вычисляем силу импульса (упрощенная модель без учета массы)
                 float j = -(1 + bounce) * velocityAlongNormal;
-                j /= 2; // Делим на 2, так как распределяем силу между двумя телами
+                j /= 2; 
 
                 Vector2 impulse = j * normal;
                 a.Body.Velocity += impulse;
                 b.Body.Velocity -= impulse;
             }
 
-            // --- ЛОГИКА РАЗДВИЖЕНИЯ (Penetration Recovery) ---
             float overlap = (a.CollisionRadius + b.CollisionRadius) - distance;
             if (overlap > 0)
             {
-                // Мягко разводим объекты, чтобы они не дрожали и не застревали
-                const float percent = 0.5f; // На сколько сильно выталкивать за один кадр
+                const float percent = 0.5f; 
                 Vector2 correction = normal * (overlap * percent);
                 a.Body.Position += correction;
                 b.Body.Position -= correction;

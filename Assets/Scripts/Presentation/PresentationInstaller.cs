@@ -32,10 +32,6 @@ namespace Game.Presentation
             // Для пуль
             Container.BindInterfacesAndSelfTo<ProjectileManager>().AsSingle();
             
-            
-            // Для коллизий
-            Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
-            
             // MVVM
             Container.Bind<GameOverViewModel>().AsSingle();
             

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Zenject;
 using Game.Core;
+using Game.Infrastructure;
 
 namespace Game.Presentation
 {
@@ -8,25 +9,27 @@ namespace Game.Presentation
     {
         private readonly IAdsService _adsService;
         private readonly IAnalyticsService _analytics;
+        private readonly GameStateService _gameState;
         private readonly SignalBus _signalBus;
         private bool _shouldRevive;
 
-        public GameOverViewModel(IAdsService adsService, IAnalyticsService analytics, SignalBus signalBus)
+        public GameOverViewModel(IAdsService adsService, IAnalyticsService analytics, SignalBus signalBus, GameStateService  gameState)
         {
             _adsService = adsService;
             _analytics = analytics;
             _signalBus = signalBus;
+            _gameState = gameState;
         }
 
         public void OnGameOver()
         {
-            Time.timeScale = 0f;
+            _gameState.PauseGame();
         }
 
         public void OnExitClicked()
         {
             _analytics.LogEvent("game_quit", "reason", "player_dead");
-            Time.timeScale = 1f;
+            _gameState.ResumeGame();
             Application.Quit();
         }
 
@@ -38,23 +41,15 @@ namespace Game.Presentation
             _adsService.ShowRewardedVideo(
                 onReward: () =>
                 {
-                    // Игрок досмотрел до конца, помечаем, что его надо воскресить
                     _shouldRevive = true;
                     _analytics.LogEvent("ad_watched_complete");
                 },
                 onClosed: () =>
                 {
-                    // Пользователь нажал на "X"
                     if (_shouldRevive)
                     {
-                        Time.timeScale = 1f; // Запускаем время
+                        _gameState.ResumeGame(); // Запускаем время
                         _signalBus.Fire(new PlayerRevivedSignal());
-                    }
-                    else
-                    {
-                        // Опционально: если закрыл раньше времени, 
-                        // оставляем Time.timeScale = 0 и панель смерти висеть
-                        Debug.Log("Реклама закрыта без получения награды");
                     }
                 }
             );

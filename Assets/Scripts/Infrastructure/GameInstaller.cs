@@ -9,12 +9,12 @@ namespace Game.Infrastructure
     {
         public override void InstallBindings()
         {
-            SignalBusInstaller.Install(Container);
-
-            bool useMobileInput = Application.isMobilePlatform || Application.isEditor;
-
             // 1. Создаем лоадер. Конструктор сразу загрузит файлы.
             var loader = new ConfigLoader();
+            
+            SignalBusInstaller.Install(Container);
+
+            bool useMobileInput = Application.isMobilePlatform || loader.World.ForceMobileInput;
 
             // 2. Биндим сами данные. 
             // Используйте IfNotBound, чтобы избежать конфликтов, если они есть
@@ -28,22 +28,18 @@ namespace Game.Infrastructure
             Container.Bind<PlayerViewModel>().AsSingle();
             Container.Bind<ProjectilePool>().AsSingle();
             Container.Bind<EnemyFactory>().AsSingle();
+            Container.Bind<GameStateService>().AsSingle();
             Container.BindInterfacesAndSelfTo<MapService>().AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayerPhysicsTicker>().AsSingle();
+            Container.BindInterfacesAndSelfTo<BulletPhysicsTicker>().AsSingle();
 
             if (useMobileInput)
-            {
-                // Важно: Биндим и как интерфейс, и как конкретный класс, 
-                // чтобы джойстик мог сделать (inputStrategy as MobileInputStrategy)
                 Container.BindInterfacesAndSelfTo<MobileInputStrategy>().AsSingle();
-            }
             else
-            {
                 Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
-            }
 
             // Регистрация типов сигналов
             Container.DeclareSignal<PlayerHealthChangedSignal>();
-            Container.DeclareSignal<CollisionOccurredSignal>();
             Container.DeclareSignal<LaserFiredSignal>();
             Container.DeclareSignal<LaserStateChangedSignal>();            
             Container.DeclareSignal<BulletCreatedSignal>();
@@ -57,7 +53,7 @@ namespace Game.Infrastructure
             Container.DeclareSignal<PlayerRevivedSignal>();
 
             // Сервисы
-            Container.Bind<IAdsService>().To<AdMobService>().AsSingle();
+            Container.BindInterfacesAndSelfTo<AdMobService>().AsSingle();
             Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
 
 
@@ -69,7 +65,8 @@ namespace Game.Infrastructure
             
             Container.Bind<EnemyFacade>().AsSingle();
 
-
+            // Для коллизий
+            Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
 
         }
     }

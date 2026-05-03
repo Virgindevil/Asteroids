@@ -8,10 +8,13 @@ namespace Game.Infrastructure
     {
         private readonly SignalBus _signalBus;
         private readonly ObjectPool<BulletModel> _pool;
+        private readonly float _bulletSpeed; // сохраняем из конфига
 
         public ProjectilePool(SignalBus signalBus, PlayerConfig config)
         {
             _signalBus = signalBus;
+            _bulletSpeed = config.BulletSpeed; // читаем из конфига
+
             _pool = new ObjectPool<BulletModel>(
                 factory: () => new BulletModel(Vector2.zero, Vector2.zero),
                 onGet: b => b.IsActive = true,
@@ -23,7 +26,7 @@ namespace Game.Infrastructure
         public void Spawn(Vector2 position, Vector2 direction)
         {
             var bullet = _pool.Get();
-            bullet.Body.ResetState(position, direction * 15f);
+            bullet.Body.ResetState(position, direction * _bulletSpeed); // используем конфиг
             bullet.LifeTime = 2f;
             _signalBus.Fire(new BulletCreatedSignal { Bullet = bullet });
         }

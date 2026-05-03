@@ -5,7 +5,7 @@ using Game.Core;
 
 namespace Game.Infrastructure
 {
-    public class AdMobService : IAdsService
+    public class AdMobService : IAdsService, IDisposable
     {
         private RewardedAd _rewardedAd;
         
@@ -84,6 +84,7 @@ namespace Game.Infrastructure
         public void Dispose()
         {
             _rewardedAd?.Destroy();
+            _rewardedAd = null;
         }
     }
 }

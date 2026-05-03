@@ -5,7 +5,8 @@
   "Friction": 0.90,
   "MaxLaserCharges": 3,
   "LaserCooldown": 5.0,
-  "BulletSpeed": 20.0,
+  "BulletSpeed": 17.0,
+  "LaserLength": 10.0,
   "ShootCooldown": 0.075,
   "InvulnerabilityDuration": 3
 }

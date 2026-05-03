@@ -9,12 +9,14 @@ namespace Game.Presentation
     {
         private LineRenderer _lineRenderer;
         private SignalBus _signalBus;
+        private PlayerViewModel _viewModel;
         private bool _isActive;
 
         [Inject]
-        public void Construct(SignalBus signalBus)
+        public void Construct(SignalBus signalBus, PlayerViewModel viewModel)
         {
             _signalBus = signalBus;
+            _viewModel = viewModel;
             _signalBus.Subscribe<LaserStateChangedSignal>(OnLaserStateChanged);
         }
 
@@ -32,13 +34,10 @@ namespace Game.Presentation
 
         private void Update()
         {
-            if (!_isActive) 
-                return;
+            if (!_isActive) return;
 
-            // Рисуем луч от игрока вперед
             _lineRenderer.SetPosition(0, transform.position);
-            // Допустим, длина лазера 10 метров
-            Vector3 endPoint = transform.position + transform.right * 10f; 
+            Vector3 endPoint = transform.position + transform.right * _viewModel.LaserLength;
             _lineRenderer.SetPosition(1, endPoint);
         }
 

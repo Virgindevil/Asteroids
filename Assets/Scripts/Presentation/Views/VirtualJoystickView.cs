@@ -13,18 +13,19 @@ namespace Game.Presentation
         [SerializeField] private float _radius = 80f;
 
         private MobileInputStrategy _mobileInput;
+        private WorldConfig _worldConfig;
         private Vector2 _center;
 
         [Inject]
-        public void Construct(IInputStrategy inputStrategy)
+        public void Construct(IInputStrategy inputStrategy, WorldConfig worldConfig)
         {
-            // Работает только если забинден MobileInputStrategy
             _mobileInput = inputStrategy as MobileInputStrategy;
+            _worldConfig = worldConfig;
         }
         
         private void Start()
         {
-            bool isMobile = Application.isMobilePlatform || Application.isEditor;
+            bool isMobile = Application.isMobilePlatform || _worldConfig.ForceMobileInput;
             gameObject.SetActive(isMobile);
         }
         

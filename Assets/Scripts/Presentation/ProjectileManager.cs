@@ -39,16 +39,12 @@ namespace Game.Presentation
 
         public void Tick()
         {
-            float dt = Time.deltaTime;
             var bullets = _views.Keys.ToList();
             var toDestroy = new List<BulletModel>();
 
             foreach (var bullet in bullets)
             {
                 if (!bullet.IsActive) { toDestroy.Add(bullet); continue; }
-
-                bullet.Body.UpdatePhysics(dt);
-                bullet.LifeTime -= dt;
 
                 if (bullet.LifeTime <= 0)
                 {

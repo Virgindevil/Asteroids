@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Game.Infrastructure
 {
-    public class EnemySpawner : ITickable, IEnemyProvider, IInitializable
+    public class EnemySpawner : ITickable, IEnemyProvider
     {
         private readonly EnemyFactory _factory;
         private readonly WorldConfig _worldConfig;
@@ -26,8 +26,6 @@ namespace Game.Infrastructure
             _enemyConfigs = enemyConfigs;
             _signalBus = signalBus;
         }
-
-        public void Initialize() { }
 
         public void Tick()
         {

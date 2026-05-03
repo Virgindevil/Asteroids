@@ -21,7 +21,7 @@ namespace Game.Core
 
         public float CollisionRadius => 0.5f; // Можно вынести в конфиг
         public bool IsInvulnerable { get; private set; }
-        public bool IsStanned { get; private set; }
+        public bool IsStunned { get; private set; }
 
         public PlayerModel(PlayerConfig config, SignalBus signalBus)
         {
@@ -32,9 +32,6 @@ namespace Game.Core
     
             _shootTimer = 0;
             LaserCharge = config.MaxLaserCharges;
-
-            // ВОТ ЭТОЙ СТРОКИ НЕ ХВАТАЛО:
-            _signalBus.Subscribe<PlayerRevivedSignal>(Revive);
         }
         
         public void Accelerate(Vector2 direction, float deltaTime)
@@ -45,10 +42,10 @@ namespace Game.Core
         }
         
         // Метод OnRevived удаляем полностью, оставляем только этот:
-        private void Revive()
+        public void Revive()
         {
             Health = (int)Config.MaxHealth;
-            IsStanned = false; // На всякий случай снимаем стан, если он завис
+            IsStunned = false; // На всякий случай снимаем стан, если он завис
     
             // Оповещаем UI
             _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
@@ -65,14 +62,14 @@ namespace Game.Core
         private async UniTaskVoid RunInvulnerability(float duration)
         {
             IsInvulnerable = true;
-            IsStanned = true;
+            IsStunned = true;
             //Debug.Log("<color=green>[PlayerModel]</color> Fire Invincible SIGNAL: TRUE");
             _signalBus.Fire(new InvincibleEffectActiveSignal { IsActive = true });
 
             await UniTask.Delay(TimeSpan.FromSeconds(duration));
 
             IsInvulnerable = false;
-            IsStanned = false;
+            IsStunned = false;
             //Debug.Log("<color=red>[PlayerModel]</color> Fire Invincible SIGNAL: FALSE");
             _signalBus.Fire(new InvincibleEffectActiveSignal { IsActive = false });
         }

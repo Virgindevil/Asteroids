@@ -12,18 +12,20 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
     private readonly SignalBus _signalBus;
 
     private bool _isLaserActive;
-    private const float LaserLength = 10f; // Должно совпадать с длиной в LaserView
+    private readonly float _laserLength;
 
     public CollisionManager(
-        PlayerModel player, 
-        IEnemyProvider enemyProvider, 
+        PlayerModel player,
+        IEnemyProvider enemyProvider,
         IProjectileProvider projectileProvider,
-        SignalBus signalBus)
+        SignalBus signalBus,
+        PlayerConfig playerConfig)
     {
         _player = player;
         _enemyProvider = enemyProvider;
         _projectileProvider = projectileProvider;
         _signalBus = signalBus;
+        _laserLength = playerConfig.LaserLength;
     }
 
     public void Initialize()
@@ -75,7 +77,6 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
                 {
                     _player.OnCollision(enemy);
                     enemy.OnCollision(_player);
-                    PhysicsBody.ResolvePushApart(_player, enemy);
                 }
             }
         }
@@ -89,7 +90,7 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
         // В Unity 0 градусов — это обычно Right (ось X)
         float angleRad = _player.Body.Rotation * Mathf.Deg2Rad;
         Vector2 direction = new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
-        Vector2 endPoint = origin + direction * LaserLength;
+        Vector2 endPoint = origin + direction * _laserLength;
 
         for (int i = enemies.Count - 1; i >= 0; i--)
         {

@@ -13,6 +13,7 @@ namespace Game.Core
         public int MaxLaserCharges;
         public float LaserCooldown;
         public float BulletSpeed;
+        public float LaserLength;
         public float ShootCooldown;
         public float InvulnerabilityDuration;
     }
@@ -35,6 +36,7 @@ namespace Game.Core
         public float Width;
         public float Height;
         public int MaxEnemies;
+        public bool ForceMobileInput;
         public List<EnemyConfig> Enemies;
     }
 }
