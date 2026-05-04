@@ -1,21 +1,26 @@
 using UnityEngine;
 using Zenject;
+using Game.Core;
 
-public class BulletPhysicsTicker : ITickable
+namespace Game.Infrastructure
 {
-    private readonly IProjectileProvider _provider;
-    
-    public BulletPhysicsTicker(IProjectileProvider provider) 
+    public class BulletPhysicsTicker : ITickable
     {
-        _provider = provider;
-    }
-    public void Tick()
-    {
-        foreach (var b in _provider.ActiveProjectiles)
+        private readonly IProjectileProvider _provider;
+
+        public BulletPhysicsTicker(IProjectileProvider provider)
         {
-            b.Body.UpdatePhysics(Time.deltaTime);
-            b.LifeTime -= Time.deltaTime;
-            if (b.LifeTime <= 0) b.IsActive = false;
+            _provider = provider;
+        }
+
+        public void Tick()
+        {
+            foreach (var b in _provider.ActiveProjectiles)
+            {
+                b.Body.UpdatePhysics(Time.deltaTime);
+                b.LifeTime -= Time.deltaTime;
+                if (b.LifeTime <= 0) b.IsActive = false;
+            }
         }
     }
 }

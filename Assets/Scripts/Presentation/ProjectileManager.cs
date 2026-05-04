@@ -36,6 +36,7 @@ namespace Game.Presentation
             _signalBus.Subscribe<BulletCreatedSignal>(OnBulletCreated);
             _signalBus.Subscribe<BulletDestroyedSignal>(OnBulletDestroyed);
         }
+        
 
         public void Tick()
         {
@@ -47,10 +48,7 @@ namespace Game.Presentation
                 if (!bullet.IsActive) { toDestroy.Add(bullet); continue; }
 
                 if (bullet.LifeTime <= 0)
-                {
-                    bullet.IsActive = false;
                     toDestroy.Add(bullet);
-                }
             }
 
             // Уничтожаем ПОСЛЕ итерации — чтобы CollisionManager успел проверить в этом кадре

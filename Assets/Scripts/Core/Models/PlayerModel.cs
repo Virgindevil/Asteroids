@@ -84,9 +84,6 @@ namespace Game.Core
             if (IsInvulnerable || Health <= 0)
                 return;
 
-            // Одной строкой решаем всю физику столкновения
-            PhysicsBody.ResolvePushApart(this, other, 0.8f);
-
             // Оставляем только логику урона
             if (other is EnemyModel enemy)
             {
@@ -101,17 +98,9 @@ namespace Game.Core
         public void TakeDamage(int amount)
         {
             if (IsInvulnerable || Health <= 0) return;
-
             Health -= amount;
-
             _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
-
-            if (Health <= 0)
-            {
-                IsInvulnerable = false;
-                // Игрок умер
-                _signalBus.Fire(new GameOverSignal());
-            }
+            // GameOverSignal убрать — его файрит PlayerController
         }
 
         public void UpdateBulletCooldown(float dt)
