@@ -8,7 +8,7 @@ namespace Game.Presentation
     public class HealthUIController : MonoBehaviour
     {
         [SerializeField] private HeartView _heartPrefab;
-        [SerializeField] private Transform _container; // Тот самый объект с Layout Group
+        [SerializeField] private Transform _container;
 
         private readonly List<HeartView> _hearts = new();
         private SignalBus _signalBus;
@@ -29,7 +29,6 @@ namespace Game.Presentation
 
         private void InitializeHearts()
         {
-            // Создаем максимальное количество сердец из конфига
             for (int i = 0; i < _config.MaxHealth; i++)
             {
                 var heart = Instantiate(_heartPrefab, _container);
@@ -39,10 +38,8 @@ namespace Game.Presentation
 
         private void OnHealthChanged(PlayerHealthChangedSignal signal)
         {
-            // Обновляем видимость сердец
             for (int i = 0; i < _hearts.Count; i++)
             {
-                // Если индекс сердца меньше текущего здоровья — оно активно
                 _hearts[i].SetActive(i < signal.CurrentHealth);
             }
         }

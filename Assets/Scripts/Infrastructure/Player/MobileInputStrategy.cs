@@ -18,7 +18,6 @@ namespace Game.Infrastructure
                 _lookDir = dir; 
             }
         }
-        public void SetLookDirection(Vector2 dir) => _lookDir = dir;
         public void SetShooting(bool value) => _isShooting = value;
         public void SetLaser(bool value) => _isLaser = value;
 

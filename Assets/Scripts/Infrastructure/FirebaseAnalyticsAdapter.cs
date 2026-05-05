@@ -11,15 +11,11 @@ namespace Game.Infrastructure
 
         public FirebaseAnalyticsAdapter()
         {
-            // Проверка и исправление зависимостей для работы Firebase на Android
             FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
                 var dependencyStatus = task.Result;
                 if (dependencyStatus == DependencyStatus.Available) {
                     _isInitialized = true;
-                    Debug.Log("[Firebase] Инициализация успешна.");
-                } else {
-                    Debug.LogError($"[Firebase] Ошибка зависимостей: {dependencyStatus}");
-                }
+                } 
             });
         }
 

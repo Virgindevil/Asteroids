@@ -5,7 +5,6 @@ namespace Game.Core
     public struct EnemyCreatedSignal {public EnemyModel Enemy; }
     public struct EnemyDestroyedSignal {public EnemyModel Enemy; }
     
-    public struct LaserFiredSignal { public int RemainingCharges; }
     public struct LaserStateChangedSignal { public bool IsActive; }
     
     public struct BulletCreatedSignal { public BulletModel Bullet; }

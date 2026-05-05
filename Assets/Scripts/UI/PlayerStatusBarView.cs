@@ -26,8 +26,6 @@ namespace Game.UI
 
         private void LateUpdate()
         {
-            // Техническая логика отображения (позиция/поворот) остается во View,
-            // так как это визуальное поведение объекта в мире.
             transform.rotation = _fixedRotation;
             transform.position = transform.parent.position + _offset;
 
@@ -38,7 +36,6 @@ namespace Game.UI
         {
             for (int i = 0; i < _chargeSliders.Length; i++)
             {
-                // View просто спрашивает: "Сколько мне нарисовать в i-м слайдере?"
                 _chargeSliders[i].value = _viewModel.GetChargeForSlider(i);
             }
         }

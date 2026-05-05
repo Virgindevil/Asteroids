@@ -26,22 +26,15 @@ namespace Game.Core
         {
             if (IsDead) return;
             Health -= amount;
-            Debug.Log($"[Enemy Log] {Config.EnemyType} damaged. HP: {Health}");
-            if (IsDead) Debug.Log($"[Enemy Log] {Config.EnemyType} is DEAD!");
         }
 
         public virtual void OnCollision(ICollidable other) 
         {
-            if (other is BulletModel)
+            if (other is BulletModel bullet)
             {
-                // Если лога ниже нет в консоли при стрельбе в НЛО — значит коллизия не сработала
-                Debug.Log($"[Collision] {Config.EnemyType} hit by Bullet!");
-                TakeDamage(1f);
+                TakeDamage(bullet.Damage);
             }
-            else
-            {
-                PhysicsBody.ResolvePushApart(this, other);
-            }
+            else { PhysicsBody.ResolvePushApart(this, other); }
         }
     }
 }

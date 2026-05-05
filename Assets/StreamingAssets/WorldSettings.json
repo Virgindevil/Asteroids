@@ -2,5 +2,9 @@
   "Width": 71.1,
   "Height": 40.0,
   "MaxEnemies": 20,
-  "ForceMobileInput": false
+  "EnemiesSpawnInterval": 2,
+  "ForceMobileInput": false,
+  "FrictionTimeMultiplier": 10,
+  "TeleportBoundaryOffset": 1,
+  "SpawnAreaDivisor": 4
 }

@@ -10,11 +10,10 @@ namespace Game.Infrastructure
         private readonly MapService _mapService;
         private readonly SignalBus _signalBus;
 
-        public EnemyFactory(PlayerModel player, MapService mapService, SignalBus signalBus)
+        public EnemyFactory(PlayerModel player, MapService mapService)
         {
             _player = player;
             _mapService = mapService;
-            _signalBus = signalBus;
         }
 
         public EnemyModel Create(EnemyConfig config)
@@ -32,18 +31,12 @@ namespace Game.Infrastructure
 
         public EnemyModel CreateFragment(FragmentData data, EnemyConfig fragmentConfig)
         {
-            // Создаем модель обломка, используя позицию и скорость из FragmentData
             var asteroid = new AsteroidModel(fragmentConfig, data.Position, data.Velocity);
-    
-            // МЫ УБРАЛИ ОТСЮДА _signalBus.Fire! 
-            // Теперь только EnemySpawner сообщает системе о появлении врага.
-    
             return asteroid;
         }
 
         private Vector2 GetRandomVelocity(Vector2 spawnPos, float speed)
         {
-            // Летим в сторону центра с разбросом
             Vector2 targetPos = new Vector2(
                 Random.Range(-_mapService.Width / 4, _mapService.Width / 4),
                 Random.Range(-_mapService.Height / 4, _mapService.Height / 4)
@@ -54,10 +47,9 @@ namespace Game.Infrastructure
 
         private Vector2 GetRandomSpawnPosition()
         {
-            float w = _mapService.Width / 2f + 1f; // +1 метр за границу
+            float w = _mapService.Width / 2f + 1f; 
             float h = _mapService.Height / 2f + 1f;
 
-            // Выбираем случайную сторону: 0-верх, 1-низ, 2-лево, 3-право
             int side = Random.Range(0, 4);
             return side switch
             {

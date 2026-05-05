@@ -22,7 +22,6 @@ namespace Game.Presentation
 
         private void OnInvincibilityChanged(InvincibleEffectActiveSignal signal)
         {
-            //Debug.Log($"<color=yellow>[PlayerView]</color> Received Signal. Active: {signal.IsActive}");
             if (signal.IsActive) _invincibilityParticles.Play();
             else _invincibilityParticles.Stop();
         }

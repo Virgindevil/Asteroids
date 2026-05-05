@@ -12,8 +12,6 @@ namespace Game.Presentation
             transform.position = startPosition;
         }
 
-        // Initialize и Update наследуются из EnemyView
-
         public class Factory : PlaceholderFactory<Vector2, UfoView> { }
     }
 }

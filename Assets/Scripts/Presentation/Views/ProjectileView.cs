@@ -16,7 +16,6 @@ namespace Game.Presentation
 
         private void Update()
         {
-            if (_model == null) return;
             transform.position = _model.Body.Position;
         }
 

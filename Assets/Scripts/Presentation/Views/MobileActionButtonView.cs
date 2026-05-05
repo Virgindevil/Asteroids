@@ -6,7 +6,6 @@ using Game.Core;
 
 namespace Game.Presentation
 {
-    // Вешаем этот скрипт на кнопку пули и кнопку лазера
     public class MobileActionButtonView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private enum ActionType { Bullet, Laser }

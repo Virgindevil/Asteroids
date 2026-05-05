@@ -1,4 +1,5 @@
 using UnityEngine;
+using Zenject;
 
 namespace Game.Core
 {
@@ -6,20 +7,21 @@ namespace Game.Core
     {
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
-        public float Rotation { get; set; } // В градусах [0, 360)
-        public float AngularVelocity { get; set; } // В градусах/сек
+        public float Rotation { get; set; } 
+        public float AngularVelocity { get; set; } 
         
         public float Speed => Velocity.magnitude;
         public Vector2 Forward => new Vector2(
-    Mathf.Cos((Rotation) * Mathf.Deg2Rad),
-    Mathf.Sin((Rotation) * Mathf.Deg2Rad)
-).normalized;
+            Mathf.Cos((Rotation) * Mathf.Deg2Rad),
+            Mathf.Sin((Rotation) * Mathf.Deg2Rad)
+            ).normalized;
 
         public const int RoundDegree = 360;
-        private const float _timeMultiplayer = 10f;
+        public const float _frictionTimeMultiplier = 10f;
 
         private readonly float _friction;
         private readonly float _angularFriction;
+        
 
         public PhysicsBody(Vector2 startPos, float friction = 0.95f, float angularFriction = 0.9f)
         {
@@ -33,10 +35,10 @@ namespace Game.Core
 
         public void UpdatePhysics(float deltaTime)
         {
-            Velocity *= Mathf.Pow(_friction, deltaTime * _timeMultiplayer);
+            Velocity *= Mathf.Pow(_friction, deltaTime * _frictionTimeMultiplier);
             Position += Velocity * deltaTime;
 
-            AngularVelocity *= Mathf.Pow(_angularFriction, deltaTime * _timeMultiplayer);
+            AngularVelocity *= Mathf.Pow(_angularFriction, deltaTime * _frictionTimeMultiplier);
             Rotation = Mathf.Repeat(Rotation + AngularVelocity * deltaTime, RoundDegree);
         }
 
@@ -69,14 +71,12 @@ namespace Game.Core
 
         public static void ResolvePushApart(ICollidable a, ICollidable b, float bounce = 0.8f)
         {
-            // 1. Считаем вектор между объектами
             Vector2 diff = a.Body.Position - b.Body.Position;
             float distance = diff.magnitude;
 
-            // Защита от деления на ноль, если объекты в одной точке
             if (distance < 0.0001f)
             {
-                a.Body.Position += new Vector2(0.01f, 0); // Чуть-чуть расталкиваем
+                a.Body.Position += new Vector2(0.02f, 0);
                 return;
             }
 
@@ -104,6 +104,5 @@ namespace Game.Core
                 b.Body.Position -= correction;
             }
         }
-
     }
 }

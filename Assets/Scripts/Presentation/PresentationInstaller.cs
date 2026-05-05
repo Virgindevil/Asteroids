@@ -15,26 +15,17 @@ namespace Game.Presentation
                 .FromComponentInNewPrefab(_bulletPrefab)
                 .UnderTransformGroup("Bullets");
 
-            //Container.BindInterfacesTo<EnemyViewManager>().AsSingle();
-            //Container.BindInterfacesAndSelfTo<EnemyViewManager>().AsSingle();
-
             Container.BindFactory<Vector2, AsteroidView, AsteroidView.Factory>()
                 .FromComponentInNewPrefab(_asteroidPrefab)
                 .UnderTransformGroup("Enemies");
 
-            // Создаем вторую фабрику для НЛО (нужно создать класс UfoView аналогичный AsteroidView)
             Container.BindFactory<Vector2, UfoView, UfoView.Factory>()
                 .FromComponentInNewPrefab(_ufoPrefab)
                 .UnderTransformGroup("Enemies");
 
-            Container.BindInterfacesAndSelfTo<EnemyViewManager>().AsSingle();
-            
-            // Для пуль
-            Container.BindInterfacesAndSelfTo<ProjectileManager>().AsSingle();
-            
-            // MVVM
             Container.Bind<GameOverViewModel>().AsSingle();
-            
+            Container.BindInterfacesAndSelfTo<EnemyViewManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ProjectileManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<GameOverView>().FromComponentInHierarchy().AsSingle();
 
         }

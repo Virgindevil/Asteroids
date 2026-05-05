@@ -11,7 +11,6 @@ namespace Game.Core
         private readonly Action<T> _onRelease;
 
         public int CountActive { get; private set; }
-        public int CountInactive => _pool.Count;
 
         public ObjectPool(Func<T> factory, Action<T> onGet = null, Action<T> onRelease = null, int initialSize = 0)
         {

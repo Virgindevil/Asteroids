@@ -7,27 +7,42 @@ namespace Game.Core
     [Serializable]
     public class PlayerConfig
     {
+        public float CollisionRadius;
         public float MaxHealth;
         public float MovementAcceleration;
-        public float Friction; // Трение для инерции
+        public float Friction;
         public int MaxLaserCharges;
         public float LaserCooldown;
         public float BulletSpeed;
+        public float BulletLifeTime;
         public float LaserLength;
+        public float LaserDamage;
+        public float LaserActiveDuration;
+        public float LaserCooldownDelay;
         public float ShootCooldown;
         public float InvulnerabilityDuration;
+    }
+    
+    [Serializable]
+    public class BulletSettings
+    {
+        public int BulletDamage;
+        public float CollisionRadius;
     }
 
     [Serializable]
     public class EnemyConfig
     {
-        public string EnemyType; // "AsteroidBig", "AsteroidSmall", "UFO"
+        public string EnemyType;
         public float Speed;
         public float Health;
         public int ScoreReward;
         public bool CanSplit;
+        public float Fragments;
         public float CollisionRadius;
         public float Friction;
+        public float FragmentSpeedBoost;
+        public float FragmentRadiusMultiplier;
     }
 
     [Serializable]
@@ -36,7 +51,10 @@ namespace Game.Core
         public float Width;
         public float Height;
         public int MaxEnemies;
+        public float EnemiesSpawnInterval;
         public bool ForceMobileInput;
-        public List<EnemyConfig> Enemies;
+        public float FrictionTimeMultiplier;
+        public float TeleportBoundaryOffset;
+        public float SpawnAreaDivisor;
     }
 }

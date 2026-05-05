@@ -43,12 +43,10 @@ namespace Game.Infrastructure
             _signalBus.TryUnsubscribe<PlayerHealthChangedSignal>(OnHealthChanged);
         }
 
-        // Каждый кадр: Ввод и Поворот (для плавности визуализации)
         public void Tick()
         {
             if (Time.timeScale <= 0f) return;
 
-            // Используем закешированную камеру вместо Camera.main
             Vector2 playerScreenPos = _camera.WorldToScreenPoint(_model.Body.Position);
             Vector2 lookDir = _input.GetLookDirection(playerScreenPos);
 
@@ -62,7 +60,6 @@ namespace Game.Infrastructure
             HandleLaser();
         }
 
-        // Фиксированный шаг: Физика движения
         public void FixedTick()
         {
             Vector2 moveDir = _input.GetMoveDirection();
@@ -78,7 +75,7 @@ namespace Game.Infrastructure
             if (_model.CanShoot)
             {
                 Vector2 shootDirection = _model.Body.Forward;
-                Vector2 spawnPosition = _model.Body.Position + shootDirection * 0.5f;
+                Vector2 spawnPosition = _model.Body.Position + shootDirection * _model.CollisionRadius;
                 _pool.Spawn(spawnPosition, shootDirection);
                 _model.SetShootCooldown();
             }
@@ -99,12 +96,12 @@ namespace Game.Infrastructure
             _model.IsLaserActive = true;
             _signalBus.Fire(new LaserStateChangedSignal { IsActive = true });
 
-            await UniTask.Delay(TimeSpan.FromSeconds(0.8f), delayType: DelayType.DeltaTime);
+            await UniTask.Delay(TimeSpan.FromSeconds(_model.Config.LaserActiveDuration), delayType: DelayType.DeltaTime);
 
             _model.IsLaserActive = false;
             _signalBus.Fire(new LaserStateChangedSignal { IsActive = false });
 
-            await UniTask.Delay(TimeSpan.FromSeconds(0.1f), delayType: DelayType.DeltaTime);
+            await UniTask.Delay(TimeSpan.FromSeconds(_model.Config.LaserCooldownDelay), delayType: DelayType.DeltaTime);
 
             _isProcessingLaser = false;
         }

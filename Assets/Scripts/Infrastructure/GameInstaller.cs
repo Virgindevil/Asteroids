@@ -9,38 +9,38 @@ namespace Game.Infrastructure
     {
         public override void InstallBindings()
         {
-            // 1. Создаем лоадер. Конструктор сразу загрузит файлы.
             var loader = new ConfigLoader();
-            
             SignalBusInstaller.Install(Container);
-
             bool useMobileInput = Application.isMobilePlatform || loader.World.ForceMobileInput;
 
-            // 2. Биндим сами данные. 
-            // Используйте IfNotBound, чтобы избежать конфликтов, если они есть
             Container.Bind<PlayerConfig>().FromInstance(loader.Player).AsSingle();
             Container.Bind<WorldConfig>().FromInstance(loader.World).AsSingle();
+            Container.Bind<BulletSettings>().FromInstance(loader.Bullet).AsSingle();
             Container.Bind<List<EnemyConfig>>().FromInstance(loader.Enemies).AsSingle();
 
-            // 4. Все остальное
-            Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
+            Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
+            
             Container.Bind<PlayerModel>().AsSingle();
             Container.Bind<PlayerViewModel>().AsSingle();
             Container.Bind<ProjectilePool>().AsSingle();
             Container.Bind<EnemyFactory>().AsSingle();
             Container.Bind<GameStateService>().AsSingle();
+            Container.Bind<GameSessionFacade>().AsSingle();
+            Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<MapService>().AsSingle();
             Container.BindInterfacesAndSelfTo<PlayerPhysicsTicker>().AsSingle();
             Container.BindInterfacesAndSelfTo<BulletPhysicsTicker>().AsSingle();
+            Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
+            Container.BindInterfacesAndSelfTo<AdMobService>().AsSingle();
+            Container.BindInterfacesAndSelfTo<ScoreManager>().AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
 
             if (useMobileInput)
                 Container.BindInterfacesAndSelfTo<MobileInputStrategy>().AsSingle();
             else
                 Container.Bind<IInputStrategy>().To<KeyboardInputStrategy>().AsSingle();
-
-            // Регистрация типов сигналов
+            
             Container.DeclareSignal<PlayerHealthChangedSignal>();
-            Container.DeclareSignal<LaserFiredSignal>();
             Container.DeclareSignal<LaserStateChangedSignal>();            
             Container.DeclareSignal<BulletCreatedSignal>();
             Container.DeclareSignal<BulletDestroyedSignal>();
@@ -48,26 +48,8 @@ namespace Game.Infrastructure
             Container.DeclareSignal<EnemyDestroyedSignal>();
             Container.DeclareSignal<ScoreChangedSignal>();
             Container.DeclareSignal<InvincibleEffectActiveSignal>();
-            // Сигналы
             Container.DeclareSignal<GameOverSignal>();
             Container.DeclareSignal<PlayerRevivedSignal>();
-
-            // Сервисы
-            Container.BindInterfacesAndSelfTo<AdMobService>().AsSingle();
-            Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
-
-
-            // Регистрация менеджера очков
-            Container.BindInterfacesAndSelfTo<ScoreManager>().AsSingle();
-            
-            // Для врагов
-            Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
-            
-            Container.Bind<EnemyFacade>().AsSingle();
-
-            // Для коллизий
-            Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
-
         }
     }
 }

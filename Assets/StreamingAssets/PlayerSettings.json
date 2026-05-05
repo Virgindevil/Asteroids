@@ -6,7 +6,12 @@
   "MaxLaserCharges": 3,
   "LaserCooldown": 5.0,
   "BulletSpeed": 17.0,
+  "BulletLifeTime": 2,
+  "BulletDamage": 2,
   "LaserLength": 10.0,
+  "LaserDamage": 999.0,
+  "LaserActiveDuration": 0.8,
+  "LaserCooldownDelay": 0.1,
   "ShootCooldown": 0.075,
   "InvulnerabilityDuration": 3
 }

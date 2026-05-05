@@ -1,11 +1,14 @@
     [{
       "EnemyType": "Asteroid",
       "CanSplit": true,
+      "Fragments": 3,
       "Speed": 5.0,
       "Health": 15.0,
       "ScoreReward": 100,
       "CollisionRadius": 2.0,
-      "Friction": 1.0
+      "Friction": 1.0,
+      "FragmentSpeedBoost": 3.0,
+      "FragmentRadiusMultiplier": 0.5
     },
     {
       "EnemyType": "Asteroid",

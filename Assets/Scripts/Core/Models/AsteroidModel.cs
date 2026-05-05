@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Game.Core
 {
-
     public struct FragmentData
     {
         public Vector2 Position;
@@ -32,19 +31,16 @@ namespace Game.Core
             var fragments = new List<FragmentData>();
             if (!CanSplit) return fragments;
 
-            int count = 3; // По ТЗ 3 осколка
-            float fragmentRadius = CollisionRadius * 0.5f;
+            float fragmentRadius = CollisionRadius * Config.FragmentRadiusMultiplier;
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < Config.Fragments; i++)
             {
-                // Генерируем случайное направление разлета
                 Vector2 randomDir = UnityEngine.Random.insideUnitCircle.normalized;
 
                 fragments.Add(new FragmentData
                 {
                     Position = Body.Position + (randomDir * fragmentRadius),
-                    // Осколки летят чуть быстрее в разные стороны
-                    Velocity = (Body.Velocity * 0.5f) + (randomDir * 3f),
+                    Velocity = (Body.Velocity * Config.FragmentRadiusMultiplier) + (randomDir * Config.FragmentSpeedBoost),
                     Radius = fragmentRadius
                 });
             }

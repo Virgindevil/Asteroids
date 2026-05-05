@@ -17,11 +17,7 @@ namespace Game.Presentation
 
         private void Update()
         {
-            if (_viewModel == null) 
-                return;
-
             transform.position = _viewModel.Position;
-
             transform.rotation = Quaternion.Euler(0, 0, _viewModel.Rotation);
         }
     }

@@ -10,8 +10,6 @@ public class EnemyViewManager : IInitializable, IDisposable
     private readonly SignalBus _signalBus;
     private readonly AsteroidView.Factory _asteroidFactory;
     private readonly UfoView.Factory _ufoFactory;
-
-    // Словарь для связи модели и её визуального объекта
     private readonly Dictionary<EnemyModel, MonoBehaviour> _views = new();
 
     public EnemyViewManager(SignalBus signalBus, AsteroidView.Factory asteroidFactory, UfoView.Factory ufoFactory)
@@ -24,7 +22,7 @@ public class EnemyViewManager : IInitializable, IDisposable
     public void Initialize()
     {
         _signalBus.Subscribe<EnemyCreatedSignal>(OnEnemyCreated);
-        _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed); // Добавлена подписка
+        _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed); 
     }
 
     private void OnEnemyCreated(EnemyCreatedSignal signal)
@@ -44,7 +42,6 @@ public class EnemyViewManager : IInitializable, IDisposable
             view = asteroidView;
         }
 
-        // Сохраняем вьюху в словарь, чтобы потом знать, что удалять
         if (!_views.ContainsKey(signal.Enemy))
         {
             _views.Add(signal.Enemy, view);
@@ -53,10 +50,9 @@ public class EnemyViewManager : IInitializable, IDisposable
 
     private void OnEnemyDestroyed(EnemyDestroyedSignal signal)
     {
-        // Ищем вьюху по модели из сигнала
         if (_views.TryGetValue(signal.Enemy, out var view))
         {
-            if (view != null && view.gameObject != null)
+            if (view != null)
             {
                 UnityEngine.Object.Destroy(view.gameObject);
             }

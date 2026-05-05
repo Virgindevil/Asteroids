@@ -24,23 +24,19 @@ namespace Game.UI
 
         private void Start()
         {
-            // Подписываемся на изменение счета
             _signalBus.Subscribe<ScoreChangedSignal>(OnScoreChanged);
-            _scoreText.text = "0"; // Начальное значение
+            _scoreText.text = "0";
         }
 
         private void Update()
         {
             if (_viewModel == null) return;
-
-            // Координаты (форматируем до 1 знака после запятой)
-            _coordsText.text = $"POS: \n{_viewModel.Position.x:F1} : {_viewModel.Position.y:F1}";
-
-            // Угол поворота
-            _rotationText.text = $"ROT: \n{Mathf.RoundToInt(_viewModel.RoundRotation)}°";
-
-            // Мгновенная скорость
-            _speedText.text = $"SPEED: \n{_viewModel.Speed:F2} m/s";
+            _coordsText.text = $"POS: " +
+                               $"\n{_viewModel.Position.x:F1} : {_viewModel.Position.y:F1}";
+            _rotationText.text = $"ROT: " +
+                                 $"\n{Mathf.RoundToInt(_viewModel.RoundRotation)}°";
+            _speedText.text = $"SPEED: " +
+                              $"\n{_viewModel.Speed:F2} m/s";
         }
 
 

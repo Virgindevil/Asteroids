@@ -13,13 +13,13 @@ namespace Game.Core
         private readonly SignalBus _signalBus;
 
         private float _shootTimer;
-        public float LaserCharge { get; private set; } // От 0 до MaxLaserCharges
+        public float LaserCharge { get; private set; }
         public bool IsLaserActive { get; set; }
         public bool CanShoot => _shootTimer <= 0;
 
         public int Health { get; private set; }
 
-        public float CollisionRadius => 0.5f; // Можно вынести в конфиг
+        public float CollisionRadius => Config.CollisionRadius; 
         public bool IsInvulnerable { get; private set; }
         public bool IsStunned { get; private set; }
 
@@ -36,22 +36,18 @@ namespace Game.Core
         
         public void Accelerate(Vector2 direction, float deltaTime)
         {
-            // Сила = Направление * Ускорение * Время
             Vector2 force = direction.normalized * Config.MovementAcceleration * deltaTime;
             Body.AddForce(force);
         }
         
-        // Метод OnRevived удаляем полностью, оставляем только этот:
         public void Revive()
         {
             Health = (int)Config.MaxHealth;
-            IsStunned = false; // На всякий случай снимаем стан, если он завис
+            IsStunned = false;
     
-            // Оповещаем UI
             _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
     
-            SetInvulnerable(3f); // Даем неуязвимость после возрождения
-            Debug.Log("[PlayerModel] Здоровье восстановлено после возрождения");
+            SetInvulnerable(Config.InvulnerabilityDuration); 
         }
         
         public void SetInvulnerable(float duration)
@@ -63,14 +59,12 @@ namespace Game.Core
         {
             IsInvulnerable = true;
             IsStunned = true;
-            //Debug.Log("<color=green>[PlayerModel]</color> Fire Invincible SIGNAL: TRUE");
             _signalBus.Fire(new InvincibleEffectActiveSignal { IsActive = true });
 
             await UniTask.Delay(TimeSpan.FromSeconds(duration));
 
             IsInvulnerable = false;
             IsStunned = false;
-            //Debug.Log("<color=red>[PlayerModel]</color> Fire Invincible SIGNAL: FALSE");
             _signalBus.Fire(new InvincibleEffectActiveSignal { IsActive = false });
         }
 
@@ -84,7 +78,6 @@ namespace Game.Core
             if (IsInvulnerable || Health <= 0)
                 return;
 
-            // Оставляем только логику урона
             if (other is EnemyModel enemy)
             {
                 TakeDamage(1);
@@ -100,7 +93,6 @@ namespace Game.Core
             if (IsInvulnerable || Health <= 0) return;
             Health -= amount;
             _signalBus.Fire(new PlayerHealthChangedSignal { CurrentHealth = Health });
-            // GameOverSignal убрать — его файрит PlayerController
         }
 
         public void UpdateBulletCooldown(float dt)
@@ -113,10 +105,8 @@ namespace Game.Core
 
         public void UpdateLaser(float dt)
         {
-            // Только восстанавливаем заряд, если он не полон
             if (!IsLaserActive && LaserCharge < Config.MaxLaserCharges)
             {
-                // Скорость восстановления: 1 заряд за Config.LaserCooldown секунд
                 LaserCharge += dt / Config.LaserCooldown;
 
                 if (LaserCharge > Config.MaxLaserCharges)

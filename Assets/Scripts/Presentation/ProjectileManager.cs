@@ -17,7 +17,8 @@ namespace Game.Presentation
 
         private readonly Dictionary<BulletModel, ProjectileView> _views = new();
 
-        public List<BulletModel> ActiveProjectiles => _views.Keys.ToList();
+        private readonly List<BulletModel> _activeBullets = new();
+        public List<BulletModel> ActiveProjectiles => _activeBullets;
 
         public ProjectileManager(
             SignalBus signalBus,
@@ -51,13 +52,13 @@ namespace Game.Presentation
                     toDestroy.Add(bullet);
             }
 
-            // Уничтожаем ПОСЛЕ итерации — чтобы CollisionManager успел проверить в этом кадре
             foreach (var bullet in toDestroy)
                 _projectilePool.Release(bullet);
         }
 
         private void OnBulletCreated(BulletCreatedSignal signal)
         {
+            _activeBullets.Add(signal.Bullet);
             var view = _factory.Create();
             view.Initialize(signal.Bullet);
             _views[signal.Bullet] = view;
@@ -67,6 +68,7 @@ namespace Game.Presentation
         {
             if (_views.TryGetValue(signal.Bullet, out var view))
             {
+                _activeBullets.Remove(signal.Bullet);
                 UnityEngine.Object.Destroy(view.gameObject);
                 _views.Remove(signal.Bullet);
             }

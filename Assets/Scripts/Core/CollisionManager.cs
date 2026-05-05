@@ -13,10 +13,11 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
 
     private bool _isLaserActive;
     private readonly float _laserLength;
+    private readonly float _laserDamage;
 
     public CollisionManager(
         PlayerModel player,
-        IEnemyProvider enemyProvider,
+        IEnemyProvider enemyProvider, 
         IProjectileProvider projectileProvider,
         SignalBus signalBus,
         PlayerConfig playerConfig)
@@ -26,11 +27,11 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
         _projectileProvider = projectileProvider;
         _signalBus = signalBus;
         _laserLength = playerConfig.LaserLength;
+        _laserDamage = playerConfig.LaserDamage;
     }
 
     public void Initialize()
     {
-        // Подписываемся на изменение состояния лазера
         _signalBus.Subscribe<LaserStateChangedSignal>(OnLaserStateChanged);
     }
 
@@ -44,13 +45,11 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
         var enemies = _enemyProvider.ActiveEnemies;
         var projectiles = _projectileProvider.ActiveProjectiles;
 
-        // 1. ЛАЗЕР vs ВРАГИ
         if (_isLaserActive)
         {
             CheckLaserCollisions(enemies);
         }
 
-        // 2. ПУЛИ vs ВРАГИ
         for (int i = projectiles.Count - 1; i >= 0; i--)
         {
             var bullet = projectiles[i];
@@ -68,7 +67,6 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
             }
         }
 
-        // 3. ИГРОК vs ВРАГИ
         if (!_player.IsInvulnerable)
         {
             foreach (var enemy in enemies)
@@ -86,8 +84,6 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
     {
         Vector2 origin = _player.Body.Position;
         
-        // Считаем направление лазера на основе поворота игрока
-        // В Unity 0 градусов — это обычно Right (ось X)
         float angleRad = _player.Body.Rotation * Mathf.Deg2Rad;
         Vector2 direction = new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad));
         Vector2 endPoint = origin + direction * _laserLength;
@@ -96,28 +92,23 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
         {
             var enemy = enemies[i];
             
-            // Проверяем, задевает ли отрезок (лазер) круг (врага)
             if (IsSegmentIntersectingCircle(origin, endPoint, enemy.Body.Position, enemy.CollisionRadius))
             {
-                // Наносим большой урон для мгновенного уничтожения
-                enemy.TakeDamage(999f);
-                // OnCollision не вызываем, так как лазер — не физический объект ICollidable
+                enemy.TakeDamage(_laserDamage);
             }
         }
     }
 
-    // Геометрическая проверка: расстояние от точки до отрезка
     private bool IsSegmentIntersectingCircle(Vector2 start, Vector2 end, Vector2 center, float radius)
     {
         Vector2 line = end - start;
         Vector2 toCenter = center - start;
         float lineLenSq = line.sqrMagnitude;
 
-        if (lineLenSq == 0) return (center - start).sqrMagnitude <= radius * radius;
+        if (lineLenSq == 0) 
+            return (center - start).sqrMagnitude <= radius * radius;
 
-        // Находим проекцию центра на прямую
         float t = Vector2.Dot(toCenter, line) / lineLenSq;
-        // Ограничиваем t, чтобы оставаться в пределах отрезка
         t = Mathf.Clamp01(t);
 
         Vector2 closestPoint = start + t * line;
