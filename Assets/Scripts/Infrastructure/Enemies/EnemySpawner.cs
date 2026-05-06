@@ -1,95 +1,72 @@
 using System.Collections.Generic;
-using Game.Core;
 using System.Linq;
-using Zenject;
+using Game.Core;
 using UnityEngine;
+using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class EnemySpawner : ITickable, IEnemyProvider
+    public class EnemySpawner : ITickable
     {
+        private readonly EnemyRegistry _registry;
         private readonly EnemyFactory _factory;
         private readonly WorldConfig _worldConfig;
-        private readonly MapService _mapService;
-        private readonly List<EnemyConfig> _enemyConfigs; 
+        private readonly List<EnemyConfig> _primaryConfigs; // кешируем один раз
         private readonly SignalBus _signalBus;
 
-        private readonly List<EnemyModel> _activeEnemies = new();
-        public IReadOnlyList<EnemyModel> ActiveEnemies => _activeEnemies;
         private float _spawnTimer;
 
-        public EnemySpawner(EnemyFactory factory, WorldConfig worldConfig, List<EnemyConfig> enemyConfigs, SignalBus signalBus, MapService mapService)
+        public EnemySpawner(
+            EnemyRegistry registry,
+            EnemyFactory factory,
+            WorldConfig worldConfig,
+            List<EnemyConfig> enemyConfigs,
+            SignalBus signalBus)
         {
+            _registry = registry;
             _factory = factory;
             _worldConfig = worldConfig;
-            _mapService = mapService;
-            _enemyConfigs = enemyConfigs;
             _signalBus = signalBus;
+
+            // Кешируем список допустимых конфигов один раз — без LINQ в Tick
+            _primaryConfigs = enemyConfigs
+                .Where(c => c.CanSplit || c.EnemyType == EnemyType.UFO)
+                .ToList();
         }
 
         public void Tick()
         {
-            float dt = Time.deltaTime;
+            _spawnTimer += Time.deltaTime;
 
-            for (int i = _activeEnemies.Count - 1; i >= 0; i--)
-            {
-                var enemy = _activeEnemies[i];
+            if (_spawnTimer < _worldConfig.EnemiesSpawnInterval) return;
+            if (CountPrimaryEnemies() >= _worldConfig.MaxEnemies) return;
 
-                if (enemy.IsDead)
-                {
-                    HandleEnemyDeath(enemy);
-                    _activeEnemies.RemoveAt(i);
-                    continue;
-                }
-
-                enemy.Update(dt);
-                enemy.Body.TeleportIfOutOfBounds(_mapService.Width+enemy.Config.CollisionRadius+1, _mapService.Height + enemy.Config.CollisionRadius+1);
-            }
-
-            _spawnTimer += dt;
-            int primaryCount = _activeEnemies.Count(e => (e is AsteroidModel a && a.CanSplit) || e is UfoModel);
-
-            if (_spawnTimer >= _worldConfig.EnemiesSpawnInterval && primaryCount < _worldConfig.MaxEnemies)
-            {
-                SpawnRandomEnemy();
-                _spawnTimer = 0;
-            }
+            SpawnRandom();
+            _spawnTimer = 0f;
         }
 
-        private void HandleEnemyDeath(EnemyModel enemy)
+        private void SpawnRandom()
         {
-            _signalBus.Fire(new EnemyDestroyedSignal { Enemy = enemy });
+            if (_primaryConfigs.Count == 0) return;
 
-            if (enemy is AsteroidModel asteroid && asteroid.CanSplit)
-            {
-                var fragmentConfig = _enemyConfigs.FirstOrDefault(e => e.EnemyType == EnemyType.Asteroid && !e.CanSplit);
-
-                if (fragmentConfig != null)
-                {
-                    foreach (var data in asteroid.GetFragments())
-                    {
-                        var fragment = _factory.CreateFragment(data, fragmentConfig);
-                        AddEnemy(fragment);
-                    }
-                }
-            }
-        }
-
-        private void SpawnRandomEnemy()
-        {
-            var validConfigs = _enemyConfigs.Where(c => c.CanSplit || c.EnemyType == EnemyType.UFO).ToList();
-            if (validConfigs.Count == 0) return;
-
-            var config = validConfigs[Random.Range(0, validConfigs.Count)];
+            var config = _primaryConfigs[Random.Range(0, _primaryConfigs.Count)];
             var enemy = _factory.Create(config);
-            _activeEnemies.Add(enemy);
+            _registry.Add(enemy);
             _signalBus.Fire(new EnemyCreatedSignal { Enemy = enemy });
         }
 
-        public void AddEnemy(EnemyModel enemy)
+        // Считаем без LINQ — простой for, без аллокаций
+        private int CountPrimaryEnemies()
         {
-            _activeEnemies.Add(enemy);
-            _signalBus.Fire(new EnemyCreatedSignal { Enemy = enemy });
+            var enemies = _registry.ActiveEnemies;
+            int count = 0;
+            for (int i = 0; i < enemies.Count; i++)
+            {
+                var e = enemies[i];
+                if ((e is AsteroidModel a && a.CanSplit) || e is UfoModel)
+                    count++;
+            }
+            return count;
         }
     }
 }

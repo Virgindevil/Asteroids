@@ -9,15 +9,23 @@ namespace Game.Infrastructure
     {
         public override void InstallBindings()
         {
-            var loader = new ConfigLoader();
+            Container.Bind<ConfigLoader>().AsSingle().NonLazy();
             SignalBusInstaller.Install(Container);
-            bool useMobileInput = Application.isMobilePlatform || loader.World.ForceMobileInput;
-
-            Container.Bind<PlayerConfig>().FromInstance(loader.Player).AsSingle();
-            Container.Bind<WorldConfig>().FromInstance(loader.World).AsSingle();
-            Container.Bind<BulletSettings>().FromInstance(loader.Bullet).AsSingle();
-            Container.Bind<List<EnemyConfig>>().FromInstance(loader.Enemies).AsSingle();
-
+            bool useMobileInput = Application.isMobilePlatform || Container.Resolve<ConfigLoader>().World.ForceMobileInput;
+            
+            Container.Bind<WorldConfig>()
+                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().World)
+                .AsSingle();
+            Container.Bind<PlayerConfig>()
+                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Player)
+                .AsSingle();
+            Container.Bind<List<EnemyConfig>>()
+                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Enemies)
+                .AsSingle();
+            Container.Bind<BulletSettings>()
+                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Bullet)
+                .AsSingle();
+            
             Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
             
             Container.Bind<PlayerModel>().AsSingle();
@@ -30,10 +38,15 @@ namespace Game.Infrastructure
             Container.BindInterfacesAndSelfTo<MapService>().AsSingle();
             Container.BindInterfacesAndSelfTo<PlayerPhysicsTicker>().AsSingle();
             Container.BindInterfacesAndSelfTo<BulletPhysicsTicker>().AsSingle();
+            Container.BindInterfacesAndSelfTo<EnemyRegistry>().AsSingle();              // CollisionManager получит через интерфейс
+            Container.BindInterfacesAndSelfTo<EnemySimulator>().AsSingle(); // апдейт и смерть
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
             Container.BindInterfacesAndSelfTo<AdMobService>().AsSingle();
             Container.BindInterfacesAndSelfTo<ScoreManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<PlayerController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayerAimController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayerWeaponController>().AsSingle();
+            Container.BindInterfacesAndSelfTo<PlayerSignals>().AsSingle();
 
             if (useMobileInput)
                 Container.BindInterfacesAndSelfTo<MobileInputStrategy>().AsSingle();
