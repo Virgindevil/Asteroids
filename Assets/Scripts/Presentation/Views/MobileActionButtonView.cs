@@ -11,25 +11,23 @@ namespace Game.Presentation
         private enum ActionType { Bullet, Laser }
         [SerializeField] private ActionType _type;
 
+        [Inject(Optional = true)]
         private MobileInputStrategy _mobileInput;
-        private WorldConfig _worldConfig;
 
         [Inject]
-        public void Construct(IInputStrategy inputStrategy, WorldConfig worldConfig)
-        {
-            _mobileInput = inputStrategy as MobileInputStrategy;
-            _worldConfig = worldConfig;
-        }
+        private WorldConfig _worldConfig;
 
         private void Start()
         {
-            bool isMobile = Application.isMobilePlatform || _worldConfig.ForceMobileInput;
+            // Если _mobileInput == null — мы точно не на мобилке
+            bool isMobile = _mobileInput != null || _worldConfig.ForceMobileInput;
             gameObject.SetActive(isMobile);
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
             if (_mobileInput == null) return;
+
             if (_type == ActionType.Bullet) _mobileInput.SetShooting(true);
             else _mobileInput.SetLaser(true);
         }
@@ -37,6 +35,7 @@ namespace Game.Presentation
         public void OnPointerUp(PointerEventData eventData)
         {
             if (_mobileInput == null) return;
+
             if (_type == ActionType.Bullet) _mobileInput.SetShooting(false);
             else _mobileInput.SetLaser(false);
         }

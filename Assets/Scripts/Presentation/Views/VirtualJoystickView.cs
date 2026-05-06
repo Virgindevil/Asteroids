@@ -12,25 +12,26 @@ namespace Game.Presentation
         [SerializeField] private RectTransform _handle;
         [SerializeField] private float _radius = 80f;
 
+        [Inject(Optional = true)]
         private MobileInputStrategy _mobileInput;
-        private WorldConfig _worldConfig;
-        private Vector2 _center;
 
         [Inject]
-        public void Construct(IInputStrategy inputStrategy, WorldConfig worldConfig)
-        {
-            _mobileInput = inputStrategy as MobileInputStrategy;
-            _worldConfig = worldConfig;
-        }
-        
+        private WorldConfig _worldConfig;
+
+        private Vector2 _center;
+
         private void Start()
         {
-            bool isMobile = Application.isMobilePlatform || _worldConfig.ForceMobileInput;
+            bool isMobile = _mobileInput != null || _worldConfig.ForceMobileInput;
             gameObject.SetActive(isMobile);
+
+            _background.gameObject.SetActive(false);
         }
-        
+
         public void OnPointerDown(PointerEventData e)
         {
+            if (_mobileInput == null) return;
+
             _center = e.position;
             _background.position = _center;
             _background.gameObject.SetActive(true);

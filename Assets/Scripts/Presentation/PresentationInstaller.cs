@@ -1,5 +1,6 @@
 using UnityEngine;
 using Zenject;
+using Game.Core;
 
 namespace Game.Presentation
 {
@@ -8,9 +9,16 @@ namespace Game.Presentation
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private GameObject _asteroidPrefab;
         [SerializeField] private GameObject _ufoPrefab;
-
+        
+        [SerializeField] private UnityCameraProvider _cameraProvider;
+        [SerializeField] private GameOverView _gameOverView;
+        
         public override void InstallBindings()
         {
+            Container.Bind<ICameraProvider>()
+                .FromInstance(_cameraProvider)
+                .AsSingle();
+            
             Container.BindFactory<ProjectileView, ProjectileView.Factory>()
                 .FromComponentInNewPrefab(_bulletPrefab)
                 .UnderTransformGroup("Bullets");
@@ -26,7 +34,9 @@ namespace Game.Presentation
             Container.Bind<GameOverViewModel>().AsSingle();
             Container.BindInterfacesAndSelfTo<EnemyViewManager>().AsSingle();
             Container.BindInterfacesAndSelfTo<ProjectileManager>().AsSingle();
-            Container.BindInterfacesAndSelfTo<GameOverView>().FromComponentInHierarchy().AsSingle();
+            Container.BindInterfacesAndSelfTo<GameOverView>()
+                .FromInstance(_gameOverView)
+                .AsSingle();
 
         }
     }

@@ -9,22 +9,16 @@ namespace Game.Infrastructure
     {
         public override void InstallBindings()
         {
-            Container.Bind<ConfigLoader>().AsSingle().NonLazy();
             SignalBusInstaller.Install(Container);
-            bool useMobileInput = Application.isMobilePlatform || Container.Resolve<ConfigLoader>().World.ForceMobileInput;
+            var loader = new ConfigLoader();
+            bool useMobileInput = Application.isMobilePlatform || loader.World.ForceMobileInput;
             
-            Container.Bind<WorldConfig>()
-                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().World)
-                .AsSingle();
-            Container.Bind<PlayerConfig>()
-                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Player)
-                .AsSingle();
-            Container.Bind<List<EnemyConfig>>()
-                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Enemies)
-                .AsSingle();
-            Container.Bind<BulletSettings>()
-                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Bullet)
-                .AsSingle();
+            Container.Bind<PlayerConfig>().FromInstance(loader.Player).AsSingle();
+            Container.Bind<WorldConfig>().FromInstance(loader.World).AsSingle();
+            Container.Bind<List<EnemyConfig>>().FromInstance(loader.Enemies).AsSingle();
+            Container.Bind<BulletSettings>().FromInstance(loader.Bullet).AsSingle();
+            
+            Container.Bind<ConfigLoader>().FromInstance(loader).AsSingle();
             
             Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
             

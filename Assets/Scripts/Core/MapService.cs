@@ -1,19 +1,23 @@
-using UnityEngine;
 using Zenject;
 
-public class MapService : IInitializable
+namespace Game.Core
 {
-    public float Width { get; private set; }
-    public float Height { get; private set; }
-
-    public void Initialize()
+    public class MapService : IInitializable
     {
-        var cam = Camera.main;
+        private readonly ICameraProvider _cameraProvider;
 
-        float orthoHeight = cam.orthographicSize * 2f;
-        float orthoWidth = orthoHeight * cam.aspect;
+        public float Width { get; private set; }
+        public float Height { get; private set; }
 
-        Height = orthoHeight;
-        Width = orthoWidth;
+        public MapService(ICameraProvider cameraProvider)
+        {
+            _cameraProvider = cameraProvider;
+        }
+
+        public void Initialize()
+        {
+            Height = _cameraProvider.OrthoHeight;
+            Width = _cameraProvider.OrthoWidth;
+        }
     }
 }

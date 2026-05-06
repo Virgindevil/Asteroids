@@ -2,30 +2,34 @@ using Game.Core;
 using UnityEngine;
 using Zenject;
 
-public class PlayerAimController : ITickable, IInitializable
+namespace Game.Infrastructure
 {
-    private Camera _camera;
-    private readonly PlayerModel _model;
-    private readonly IInputStrategy _input;
-    
-    public PlayerAimController(PlayerModel model, IInputStrategy input)
+    public class PlayerAimController : ITickable
     {
-        _input = input;
-        _model = model;
-    }
+        private readonly PlayerModel _model;
+        private readonly IInputStrategy _input;
+        private readonly ICameraProvider _cameraProvider;
 
-    public void Initialize()
-    {
-        _camera = Camera.main;
-    }
+        public PlayerAimController(
+            PlayerModel model,
+            IInputStrategy input,
+            ICameraProvider cameraProvider)
+        {
+            _model = model;
+            _input = input;
+            _cameraProvider = cameraProvider;
+        }
 
-    public void Tick()
-    {
-        Vector2 playerScreenPos = _camera.WorldToScreenPoint(_model.Body.Position);
-        Vector2 lookDir = _input.GetLookDirection(playerScreenPos);
+        public void Tick()
+        {
+            if (Time.timeScale <= 0f) return;
 
-        if (lookDir.sqrMagnitude > 0.01f)
-            _model.Body.Rotation = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
+            Vector2 playerScreenPos = _cameraProvider.Camera
+                .WorldToScreenPoint(_model.Body.Position);
+            Vector2 lookDir = _input.GetLookDirection(playerScreenPos);
 
+            if (lookDir.sqrMagnitude > 0.01f)
+                _model.Body.Rotation = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg;
+        }
     }
 }
