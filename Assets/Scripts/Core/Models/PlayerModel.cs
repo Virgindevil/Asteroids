@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Threading;
 using UnityEngine;
 using Zenject;
 
@@ -9,7 +10,7 @@ namespace Game.Core
     {
         public PhysicsBody Body { get; private set; }
         public PlayerConfig Config { get; private set; }
-        
+        private CancellationTokenSource _invulCts;
         private readonly SignalBus _signalBus;
 
         private float _shootTimer;
@@ -52,19 +53,21 @@ namespace Game.Core
         
         public void SetInvulnerable(float duration)
         {
-            RunInvulnerability(duration).Forget();
+            _invulCts?.Cancel();
+            _invulCts = new CancellationTokenSource();
+            RunInvulnerability(duration, _invulCts.Token).Forget();
         }
 
-        private async UniTaskVoid RunInvulnerability(float duration)
+        private async UniTask RunInvulnerability(float duration, CancellationToken ct)
         {
-            IsInvulnerable = true;
-            IsStunned = true;
+            IsInvulnerable = true; IsStunned = true;
             _signalBus.Fire(new InvincibleEffectActiveSignal { IsActive = true });
-
-            await UniTask.Delay(TimeSpan.FromSeconds(duration));
-
-            IsInvulnerable = false;
-            IsStunned = false;
+            try
+            {
+                await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: ct);
+            }
+            catch (OperationCanceledException) { return; }
+            IsInvulnerable = false; IsStunned = false;
             _signalBus.Fire(new InvincibleEffectActiveSignal { IsActive = false });
         }
 

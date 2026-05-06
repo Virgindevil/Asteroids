@@ -80,7 +80,7 @@ public class CollisionManager : ITickable, IInitializable, IDisposable
         }
     }
 
-    private void CheckLaserCollisions(List<EnemyModel> enemies)
+    private void CheckLaserCollisions(IReadOnlyList<EnemyModel> enemies)
     {
         Vector2 origin = _player.Body.Position;
         

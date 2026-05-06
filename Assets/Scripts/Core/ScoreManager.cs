@@ -15,7 +15,7 @@ public class ScoreManager : IInitializable, System.IDisposable
 
         foreach (var enemy in enemyConfigs)
         {
-            _rewardByType[enemy.EnemyType] = enemy.ScoreReward;
+            _rewardByType[enemy.EnemyType.ToString()] = enemy.ScoreReward;
         }
     }
 
@@ -25,7 +25,7 @@ public class ScoreManager : IInitializable, System.IDisposable
     {
         if (signal.Enemy?.Config == null) return;
 
-        if (_rewardByType.TryGetValue(signal.Enemy.Config.EnemyType, out int reward))
+        if (_rewardByType.TryGetValue(signal.Enemy.Config.EnemyType.ToString(), out int reward))
         {
             _currentScore += reward;
             _signalBus.Fire(new ScoreChangedSignal { TotalScore = _currentScore });

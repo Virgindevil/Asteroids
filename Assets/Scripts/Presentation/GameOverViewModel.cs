@@ -31,7 +31,14 @@ namespace Game.Presentation
         {
             _adsService.ShowRewardedVideo(
                 onReward: () => _shouldRevive = true,
-                onClosed: () => { if (_shouldRevive) _session.OnPlayerRevived(); }
+                onClosed: () =>
+                {
+                    if (_shouldRevive)
+                    {
+                        _shouldRevive = false; 
+                        _session.OnPlayerRevived();
+                    }
+                }
             );
         }
     }

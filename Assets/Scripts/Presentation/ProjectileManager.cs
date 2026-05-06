@@ -18,7 +18,7 @@ namespace Game.Presentation
         private readonly Dictionary<BulletModel, ProjectileView> _views = new();
 
         private readonly List<BulletModel> _activeBullets = new();
-        public List<BulletModel> ActiveProjectiles => _activeBullets;
+        public IReadOnlyList<BulletModel> ActiveProjectiles => _activeBullets;
 
         public ProjectileManager(
             SignalBus signalBus,

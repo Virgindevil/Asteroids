@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 namespace Game.Core
 {
-
+    public enum EnemyType { Asteroid, UFO }
+    
     [Serializable]
     public class PlayerConfig
     {
@@ -33,7 +34,7 @@ namespace Game.Core
     [Serializable]
     public class EnemyConfig
     {
-        public string EnemyType;
+        public EnemyType EnemyType;
         public float Speed;
         public float Health;
         public int ScoreReward;

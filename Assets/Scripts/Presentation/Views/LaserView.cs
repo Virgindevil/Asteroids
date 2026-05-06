@@ -17,13 +17,17 @@ namespace Game.Presentation
         {
             _signalBus = signalBus;
             _viewModel = viewModel;
-            _signalBus.Subscribe<LaserStateChangedSignal>(OnLaserStateChanged);
+        }
+        
+        private void Awake()
+        {
+            _lineRenderer = GetComponent<LineRenderer>();
+            _lineRenderer.enabled = false;
         }
 
         private void Start()
         {
-            _lineRenderer = GetComponent<LineRenderer>();
-            _lineRenderer.enabled = false;
+            _signalBus.Subscribe<LaserStateChangedSignal>(OnLaserStateChanged);
         }
 
         private void OnLaserStateChanged(LaserStateChangedSignal signal)

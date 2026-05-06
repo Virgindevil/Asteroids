@@ -20,12 +20,11 @@ namespace Game.Infrastructure
         {
             Vector2 spawnPos = GetRandomSpawnPosition();
             Vector2 velocity = GetRandomVelocity(spawnPos, config.Speed);
-
-            return config.EnemyType switch
-            {
-                "Asteroid" => new AsteroidModel(config, spawnPos, velocity),
-                "UFO" => new UfoModel(config, spawnPos, velocity, _player),
-                _ => new AsteroidModel(config, spawnPos, velocity)
+            
+            return config.EnemyType switch {
+                EnemyType.Asteroid => new AsteroidModel(config, spawnPos, velocity),
+                EnemyType.UFO => new UfoModel(config, spawnPos, velocity, _player),
+                 _ => new AsteroidModel(config, spawnPos, velocity)
             };
         }
 

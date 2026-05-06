@@ -6,7 +6,7 @@ using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class PlayerController : ITickable, IFixedTickable, IInitializable, IDisposable
+    public class PlayerController : ITickable, IInitializable, IDisposable
     {
         private Camera _camera;
         private readonly PlayerModel _model;
@@ -46,7 +46,11 @@ namespace Game.Infrastructure
         public void Tick()
         {
             if (Time.timeScale <= 0f) return;
-
+            
+            Vector2 moveDir = _input.GetMoveDirection();
+            if (moveDir.sqrMagnitude > 0.01f && !_model.IsStunned)
+                _model.Body.AddForce(moveDir * _model.Config.MovementAcceleration * Time.deltaTime);
+            
             Vector2 playerScreenPos = _camera.WorldToScreenPoint(_model.Body.Position);
             Vector2 lookDir = _input.GetLookDirection(playerScreenPos);
 
@@ -58,16 +62,6 @@ namespace Game.Infrastructure
 
             _model.UpdateBulletCooldown(Time.deltaTime);
             HandleLaser();
-        }
-
-        public void FixedTick()
-        {
-            Vector2 moveDir = _input.GetMoveDirection();
-            if (moveDir.sqrMagnitude > 0.01f && !_model.IsStunned)
-            {
-                float accel = _model.Config.MovementAcceleration;
-                _model.Body.AddForce(moveDir * accel * Time.fixedDeltaTime);
-            }
         }
         
         private void Shoot()
@@ -88,21 +82,25 @@ namespace Game.Infrastructure
                 FireLaserPulse().Forget();
         }
 
-        private async UniTaskVoid FireLaserPulse()
+        private async UniTask FireLaserPulse()
         {
             if (!_model.TryConsumeCharge()) return;
-
+            
             _isProcessingLaser = true;
             _model.IsLaserActive = true;
+            
             _signalBus.Fire(new LaserStateChangedSignal { IsActive = true });
-
-            await UniTask.Delay(TimeSpan.FromSeconds(_model.Config.LaserActiveDuration), delayType: DelayType.DeltaTime);
-
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(_model.Config.LaserActiveDuration),
+                delayType: DelayType.DeltaTime);
+            
             _model.IsLaserActive = false;
+            
             _signalBus.Fire(new LaserStateChangedSignal { IsActive = false });
-
-            await UniTask.Delay(TimeSpan.FromSeconds(_model.Config.LaserCooldownDelay), delayType: DelayType.DeltaTime);
-
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(_model.Config.LaserCooldownDelay),
+                delayType: DelayType.DeltaTime);
+            
             _isProcessingLaser = false;
         }
     }
