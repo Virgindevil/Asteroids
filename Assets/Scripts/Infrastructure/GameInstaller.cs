@@ -10,15 +10,31 @@ namespace Game.Infrastructure
         public override void InstallBindings()
         {
             SignalBusInstaller.Install(Container);
-            var loader = new ConfigLoader();
-            var useMobileInput = Application.isMobilePlatform || loader.World.ForceMobileInput;
 
-            Container.Bind<PlayerConfig>().FromInstance(loader.Player).AsSingle();
-            Container.Bind<WorldConfig>().FromInstance(loader.World).AsSingle();
-            Container.Bind<List<EnemyConfig>>().FromInstance(loader.Enemies).AsSingle();
-            Container.Bind<BulletSettings>().FromInstance(loader.Bullet).AsSingle();
+            // Регистрируем ConfigLoader в контейнере — Zenject создаёт его сам
+            // NonLazy — создаётся сразу при старте, не при первом запросе
+            Container.Bind<ConfigLoader>().AsSingle().NonLazy();
 
-            Container.Bind<ConfigLoader>().FromInstance(loader).AsSingle();
+            // Конфиги получаем через FromMethod — Zenject резолвит ConfigLoader
+            // и вызывает лямбду после того как все биндинги зарегистрированы
+            Container.Bind<PlayerConfig>()
+                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Player)
+                .AsSingle();
+            Container.Bind<WorldConfig>()
+                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().World)
+                .AsSingle();
+            Container.Bind<List<EnemyConfig>>()
+                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Enemies)
+                .AsSingle();
+            Container.Bind<BulletSettings>()
+                .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Bullet)
+                .AsSingle();
+
+            // ForceMobileInput читаем до биндингов через прямое создание —
+            // это единственное исключение, потому что нужно ДО выбора стратегии ввода
+            var tempLoader = new ConfigLoader();
+            var useMobileInput = Application.isMobilePlatform || tempLoader.World.ForceMobileInput;
+
 
             Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
 

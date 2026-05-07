@@ -1,6 +1,5 @@
 using Game.Core;
 using UnityEngine;
-using Zenject;
 
 namespace Game.Infrastructure
 {

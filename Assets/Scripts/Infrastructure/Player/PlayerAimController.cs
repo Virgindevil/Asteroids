@@ -27,8 +27,7 @@ namespace Game.Infrastructure
         {
             if (_gameState.IsPaused) return;
 
-            Vector2 playerScreenPos = _cameraProvider.Camera
-                .WorldToScreenPoint(_model.Body.Position);
+            var playerScreenPos = _cameraProvider.WorldToScreenPoint(_model.Body.Position);
             var lookDir = _input.GetLookDirection(playerScreenPos);
 
             if (lookDir.sqrMagnitude > 0.01f)
