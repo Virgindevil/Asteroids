@@ -5,21 +5,21 @@ namespace Game.Core
 {
     public class ObjectPool<T> where T : class
     {
-        private readonly Stack<T> _pool = new();
         private readonly Func<T> _factory;
         private readonly Action<T> _onGet;
         private readonly Action<T> _onRelease;
-
-        public int CountActive { get; private set; }
+        private readonly Stack<T> _pool = new();
 
         public ObjectPool(Func<T> factory, Action<T> onGet = null, Action<T> onRelease = null, int initialSize = 0)
         {
             _factory = factory;
             _onGet = onGet;
             _onRelease = onRelease;
-            for (int i = 0; i < initialSize; i++)
+            for (var i = 0; i < initialSize; i++)
                 _pool.Push(_factory());
         }
+
+        public int CountActive { get; private set; }
 
         public T Get()
         {

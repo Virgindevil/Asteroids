@@ -8,11 +8,11 @@ namespace Game.Infrastructure
 {
     public class EnemySpawner : ITickable
     {
-        private readonly EnemyRegistry _registry;
         private readonly EnemyFactory _factory;
-        private readonly WorldConfig _worldConfig;
-        private readonly List<EnemyConfig> _primaryConfigs; // кешируем один раз
+        private readonly List<EnemyConfig> _primaryConfigs;
+        private readonly EnemyRegistry _registry;
         private readonly SignalBus _signalBus;
+        private readonly WorldConfig _worldConfig;
 
         private float _spawnTimer;
 
@@ -28,7 +28,6 @@ namespace Game.Infrastructure
             _worldConfig = worldConfig;
             _signalBus = signalBus;
 
-            // Кешируем список допустимых конфигов один раз — без LINQ в Tick
             _primaryConfigs = enemyConfigs
                 .Where(c => c.CanSplit || c.EnemyType == EnemyType.UFO)
                 .ToList();
@@ -55,17 +54,17 @@ namespace Game.Infrastructure
             _signalBus.Fire(new EnemyCreatedSignal { Enemy = enemy });
         }
 
-        // Считаем без LINQ — простой for, без аллокаций
         private int CountPrimaryEnemies()
         {
             var enemies = _registry.ActiveEnemies;
-            int count = 0;
-            for (int i = 0; i < enemies.Count; i++)
+            var count = 0;
+            for (var i = 0; i < enemies.Count; i++)
             {
                 var e = enemies[i];
                 if ((e is AsteroidModel a && a.CanSplit) || e is UfoModel)
                     count++;
             }
+
             return count;
         }
     }

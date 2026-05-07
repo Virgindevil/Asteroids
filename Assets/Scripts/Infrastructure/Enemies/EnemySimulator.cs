@@ -8,12 +8,12 @@ namespace Game.Infrastructure
 {
     public class EnemySimulator : ITickable
     {
-        private readonly EnemyRegistry _registry;
-        private readonly EnemyFactory _factory;
-        private readonly MapService _mapService;
-        private readonly SignalBus _signalBus;
         private readonly List<EnemyConfig> _enemyConfigs;
+        private readonly EnemyFactory _factory;
         private readonly float _frictionMultiplier;
+        private readonly MapService _mapService;
+        private readonly EnemyRegistry _registry;
+        private readonly SignalBus _signalBus;
         private readonly float _teleportOffset;
 
         public EnemySimulator(
@@ -22,7 +22,7 @@ namespace Game.Infrastructure
             MapService mapService,
             SignalBus signalBus,
             List<EnemyConfig> enemyConfigs,
-            WorldConfig worldConfig)  // добавляем
+            WorldConfig worldConfig)
         {
             _registry = registry;
             _factory = factory;
@@ -35,10 +35,10 @@ namespace Game.Infrastructure
 
         public void Tick()
         {
-            float dt = Time.deltaTime;
+            var dt = Time.deltaTime;
             var enemies = (List<EnemyModel>)_registry.ActiveEnemies;
 
-            for (int i = enemies.Count - 1; i >= 0; i--)
+            for (var i = enemies.Count - 1; i >= 0; i--)
             {
                 var enemy = enemies[i];
 
@@ -49,9 +49,9 @@ namespace Game.Infrastructure
                     continue;
                 }
 
-                enemy.Update(dt, _frictionMultiplier); 
+                enemy.Update(dt, _frictionMultiplier);
                 enemy.Body.TeleportIfOutOfBounds(
-                    _mapService.Width + _teleportOffset,  
+                    _mapService.Width + _teleportOffset,
                     _mapService.Height + _teleportOffset);
             }
         }

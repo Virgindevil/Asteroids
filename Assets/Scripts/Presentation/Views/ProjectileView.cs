@@ -1,5 +1,5 @@
-using UnityEngine;
 using Game.Core;
+using UnityEngine;
 using Zenject;
 
 namespace Game.Presentation
@@ -8,17 +8,19 @@ namespace Game.Presentation
     {
         private BulletModel _model;
 
+        private void Update()
+        {
+            transform.position = _model.Body.Position;
+        }
+
         public void Initialize(BulletModel model)
         {
             _model = model;
             transform.position = _model.Body.Position;
         }
 
-        private void Update()
+        public class Factory : PlaceholderFactory<ProjectileView>
         {
-            transform.position = _model.Body.Position;
         }
-
-        public class Factory : PlaceholderFactory<ProjectileView> { }
     }
 }

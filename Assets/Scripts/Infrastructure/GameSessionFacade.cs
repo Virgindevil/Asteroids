@@ -3,12 +3,12 @@ using UnityEngine;
 using Zenject;
 
 namespace Game.Infrastructure
-{ 
+{
     public class GameSessionFacade
     {
+        private readonly IAnalyticsService _analytics;
         private readonly GameStateService _gameState;
         private readonly SignalBus _signalBus;
-        private readonly IAnalyticsService _analytics;
 
         public GameSessionFacade(GameStateService gameState,
             SignalBus signalBus, IAnalyticsService analytics)

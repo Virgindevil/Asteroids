@@ -1,14 +1,13 @@
 using UnityEngine;
 using Zenject;
 
-namespace  Game.Core
+namespace Game.Core
 {
     public class PlayerPhysicsTicker : ITickable
     {
-        private readonly PlayerModel _model;
-        private readonly MapService _map;
-        
         private readonly float _frictionMultiplier;
+        private readonly MapService _map;
+        private readonly PlayerModel _model;
         private readonly float _teleportOffset;
 
         public PlayerPhysicsTicker(PlayerModel model, MapService map, WorldConfig worldConfig)
@@ -22,7 +21,7 @@ namespace  Game.Core
         public void Tick()
         {
             _model.Body.UpdatePhysics(Time.deltaTime, _frictionMultiplier);
-            _model.Body.TeleportIfOutOfBounds(_map.Width+ _teleportOffset, _map.Height+ _teleportOffset);
+            _model.Body.TeleportIfOutOfBounds(_map.Width + _teleportOffset, _map.Height + _teleportOffset);
         }
     }
 }

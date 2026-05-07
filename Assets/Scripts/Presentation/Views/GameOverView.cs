@@ -1,7 +1,7 @@
+using Game.Core;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-using Game.Core;
 
 namespace Game.Presentation
 {
@@ -10,9 +10,26 @@ namespace Game.Presentation
         [SerializeField] private Button _exitButton;
         [SerializeField] private Button _continueButton;
         [SerializeField] private GameObject _gameOverPanel;
+        private SignalBus _signalBus;
 
         private GameOverViewModel _viewModel;
-        private SignalBus _signalBus;
+
+        private void Awake()
+        {
+            _gameOverPanel.SetActive(false);
+
+            _exitButton.onClick.AddListener(_viewModel.OnExitClicked);
+            _continueButton.onClick.AddListener(_viewModel.OnContinueClicked);
+
+            _signalBus.Subscribe<GameOverSignal>(ShowPanel);
+            _signalBus.Subscribe<PlayerRevivedSignal>(HidePanel);
+        }
+
+        private void OnDestroy()
+        {
+            _signalBus?.TryUnsubscribe<GameOverSignal>(ShowPanel);
+            _signalBus?.TryUnsubscribe<PlayerRevivedSignal>(HidePanel);
+        }
 
         [Inject]
         public void Construct(GameOverViewModel viewModel, SignalBus signalBus)
@@ -21,29 +38,15 @@ namespace Game.Presentation
             _signalBus = signalBus;
         }
 
-        private void Awake()
-        {
-            _gameOverPanel.SetActive(false);
-            
-            _exitButton.onClick.AddListener(_viewModel.OnExitClicked);
-            _continueButton.onClick.AddListener(_viewModel.OnContinueClicked);
-
-            _signalBus.Subscribe<GameOverSignal>(ShowPanel);
-            _signalBus.Subscribe<PlayerRevivedSignal>(HidePanel);
-        }
-
         private void ShowPanel()
         {
             _viewModel.OnGameOver();
             _gameOverPanel.SetActive(true);
-        }    
-        private void HidePanel() => _gameOverPanel.SetActive(false);
-
-        private void OnDestroy()
-        {
-            _signalBus?.TryUnsubscribe<GameOverSignal>(ShowPanel);
-            _signalBus?.TryUnsubscribe<PlayerRevivedSignal>(HidePanel);
         }
 
+        private void HidePanel()
+        {
+            _gameOverPanel.SetActive(false);
+        }
     }
 }

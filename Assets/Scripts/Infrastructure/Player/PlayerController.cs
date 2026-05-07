@@ -6,21 +6,22 @@ namespace Game.Infrastructure
 {
     public class PlayerController : ITickable
     {
-        private readonly PlayerModel _model;
         private readonly IInputStrategy _input;
-        private bool _isProcessingLaser;
+        private readonly PlayerModel _model;
+        private readonly GameStateService _gameState;
 
-        public PlayerController(PlayerModel model, IInputStrategy input)
+        public PlayerController(PlayerModel model, IInputStrategy input,  GameStateService gameState)
         {
             _model = model;
             _input = input;
+            _gameState = gameState;
         }
 
         public void Tick()
         {
-            if (Time.timeScale <= 0f) return;
-            
-            Vector2 moveDir = _input.GetMoveDirection();
+            if (_gameState.IsPaused) return;
+
+            var moveDir = _input.GetMoveDirection();
             if (moveDir.sqrMagnitude > 0.01f && !_model.IsStunned)
                 _model.Body.AddForce(moveDir * _model.Config.MovementAcceleration * Time.deltaTime);
         }

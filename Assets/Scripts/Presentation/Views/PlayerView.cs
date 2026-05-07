@@ -1,6 +1,6 @@
+using Game.Core;
 using UnityEngine;
 using Zenject;
-using Game.Core;
 
 namespace Game.Presentation
 {
@@ -8,17 +8,17 @@ namespace Game.Presentation
     {
         private PlayerViewModel _viewModel;
 
-        [Inject]
-        public void Construct(PlayerViewModel viewModel)
-        {
-            _viewModel = viewModel;
-        }
-
 
         private void Update()
         {
             transform.position = _viewModel.Position;
             transform.rotation = Quaternion.Euler(0, 0, _viewModel.Rotation);
+        }
+
+        [Inject]
+        public void Construct(PlayerViewModel viewModel)
+        {
+            _viewModel = viewModel;
         }
     }
 }

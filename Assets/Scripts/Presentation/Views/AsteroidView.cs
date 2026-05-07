@@ -1,5 +1,4 @@
 using UnityEngine;
-using Game.Core;
 using Zenject;
 
 namespace Game.Presentation
@@ -12,6 +11,8 @@ namespace Game.Presentation
             transform.position = startPosition;
         }
 
-        public class Factory : PlaceholderFactory<Vector2, AsteroidView> { }
+        public class Factory : PlaceholderFactory<Vector2, AsteroidView>
+        {
+        }
     }
 }

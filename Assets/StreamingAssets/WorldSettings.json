@@ -3,6 +3,6 @@
   "EnemiesSpawnInterval": 2,
   "ForceMobileInput": false,
   "FrictionTimeMultiplier": 10,
-  "TeleportBoundaryOffset": 1,
+  "TeleportBoundaryOffset": 3,
   "SpawnAreaDivisor": 4
 }

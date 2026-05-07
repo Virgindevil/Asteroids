@@ -1,68 +1,66 @@
-using Game.Core;
-using Game.Presentation;
 using System;
 using System.Collections.Generic;
+using Game.Core;
+using Game.Presentation;
 using UnityEngine;
 using Zenject;
+using Object = UnityEngine.Object;
 
-public class EnemyViewManager : IInitializable, IDisposable
+namespace Game.Presentation
 {
-    private readonly SignalBus _signalBus;
-    private readonly AsteroidView.Factory _asteroidFactory;
-    private readonly UfoView.Factory _ufoFactory;
-    private readonly Dictionary<EnemyModel, MonoBehaviour> _views = new();
-
-    public EnemyViewManager(SignalBus signalBus, AsteroidView.Factory asteroidFactory, UfoView.Factory ufoFactory)
+    public class EnemyViewManager : IInitializable, IDisposable
     {
-        _signalBus = signalBus;
-        _asteroidFactory = asteroidFactory;
-        _ufoFactory = ufoFactory;
-    }
+        private readonly AsteroidView.Factory _asteroidFactory;
+        private readonly SignalBus _signalBus;
+        private readonly UfoView.Factory _ufoFactory;
+        private readonly Dictionary<EnemyModel, MonoBehaviour> _views = new();
 
-    public void Initialize()
-    {
-        _signalBus.Subscribe<EnemyCreatedSignal>(OnEnemyCreated);
-        _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed); 
-    }
-
-    private void OnEnemyCreated(EnemyCreatedSignal signal)
-    {
-        MonoBehaviour view;
-
-        if (signal.Enemy is UfoModel)
+        public EnemyViewManager(SignalBus signalBus, AsteroidView.Factory asteroidFactory, UfoView.Factory ufoFactory)
         {
-            var ufoView = _ufoFactory.Create(signal.Enemy.Body.Position);
-            ufoView.Initialize(signal.Enemy);
-            view = ufoView;
-        }
-        else
-        {
-            var asteroidView = _asteroidFactory.Create(signal.Enemy.Body.Position);
-            asteroidView.Initialize(signal.Enemy);
-            view = asteroidView;
+            _signalBus = signalBus;
+            _asteroidFactory = asteroidFactory;
+            _ufoFactory = ufoFactory;
         }
 
-        if (!_views.ContainsKey(signal.Enemy))
+        public void Dispose()
         {
-            _views.Add(signal.Enemy, view);
+            _signalBus.Unsubscribe<EnemyCreatedSignal>(OnEnemyCreated);
+            _signalBus.Unsubscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
         }
-    }
 
-    private void OnEnemyDestroyed(EnemyDestroyedSignal signal)
-    {
-        if (_views.TryGetValue(signal.Enemy, out var view))
+        public void Initialize()
         {
-            if (view != null)
+            _signalBus.Subscribe<EnemyCreatedSignal>(OnEnemyCreated);
+            _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+        }
+
+        private void OnEnemyCreated(EnemyCreatedSignal signal)
+        {
+            MonoBehaviour view;
+
+            if (signal.Enemy is UfoModel)
             {
-                UnityEngine.Object.Destroy(view.gameObject);
+                var ufoView = _ufoFactory.Create(signal.Enemy.Body.Position);
+                ufoView.Initialize(signal.Enemy);
+                view = ufoView;
             }
-            _views.Remove(signal.Enemy);
-        }
-    }
+            else
+            {
+                var asteroidView = _asteroidFactory.Create(signal.Enemy.Body.Position);
+                asteroidView.Initialize(signal.Enemy);
+                view = asteroidView;
+            }
 
-    public void Dispose()
-    {
-        _signalBus.Unsubscribe<EnemyCreatedSignal>(OnEnemyCreated);
-        _signalBus.Unsubscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+            if (!_views.ContainsKey(signal.Enemy)) _views.Add(signal.Enemy, view);
+        }
+
+        private void OnEnemyDestroyed(EnemyDestroyedSignal signal)
+        {
+            if (_views.TryGetValue(signal.Enemy, out var view))
+            {
+                if (view != null) Object.Destroy(view.gameObject);
+                _views.Remove(signal.Enemy);
+            }
+        }
     }
 }

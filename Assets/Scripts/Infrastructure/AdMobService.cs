@@ -1,40 +1,26 @@
 using System;
-using GoogleMobileAds.Api;
-using UnityEngine;
 using Game.Core;
+using GoogleMobileAds.Api;
 
 namespace Game.Infrastructure
 {
     public class AdMobService : IAdsService, IDisposable
     {
-        private RewardedAd _rewardedAd;
-        
         private const string AdUnitId = "ca-app-pub-3940256099942544/5224354917";
+        private RewardedAd _rewardedAd;
 
         public AdMobService()
         {
-            #if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS
                 MobileAds.Initialize(status => {
                     LoadRewardedAd();
                 });
-            #endif
-        }
-
-        public void LoadRewardedAd()
-        {
-            if (_rewardedAd != null)
-            {
-                _rewardedAd.Destroy();
-                _rewardedAd = null;
-            }
-
-            var adRequest = new AdRequest();
-            RewardedAd.Load(AdUnitId, adRequest, (ad, error) => { _rewardedAd = ad; });
+#endif
         }
 
         public void ShowRewardedVideo(Action onReward, Action onClosed)
         {
-            #if UNITY_ANDROID || UNITY_IOS
+#if UNITY_ANDROID || UNITY_IOS
                 if (_rewardedAd != null && _rewardedAd.CanShowAd())
                 {
                     _rewardedAd.OnAdFullScreenContentClosed += () =>
@@ -52,10 +38,10 @@ namespace Game.Infrastructure
                 {
                     LoadRewardedAd();
                 }
-            #else
-                onReward?.Invoke();
-                onClosed?.Invoke();
-            #endif
+#else
+            onReward?.Invoke();
+            onClosed?.Invoke();
+#endif
         }
 
 
@@ -63,6 +49,18 @@ namespace Game.Infrastructure
         {
             _rewardedAd?.Destroy();
             _rewardedAd = null;
+        }
+
+        public void LoadRewardedAd()
+        {
+            if (_rewardedAd != null)
+            {
+                _rewardedAd.Destroy();
+                _rewardedAd = null;
+            }
+
+            var adRequest = new AdRequest();
+            RewardedAd.Load(AdUnitId, adRequest, (ad, error) => { _rewardedAd = ad; });
         }
     }
 }

@@ -1,26 +1,14 @@
 using UnityEngine;
-using Zenject;
 
 namespace Game.Core
 {
     public class PhysicsBody
     {
-        public Vector2 Position { get; set; }
-        public Vector2 Velocity { get; set; }
-        public float Rotation { get; set; } 
-        public float AngularVelocity { get; set; } 
-        
-        public float Speed => Velocity.magnitude;
-        public Vector2 Forward => new Vector2(
-            Mathf.Cos((Rotation) * Mathf.Deg2Rad),
-            Mathf.Sin((Rotation) * Mathf.Deg2Rad)
-            ).normalized;
-
         public const int RoundDegree = 360;
+        private readonly float _angularFriction;
 
         private readonly float _friction;
-        private readonly float _angularFriction;
-        
+
 
         public PhysicsBody(Vector2 startPos, float friction = 0.95f, float angularFriction = 0.9f)
         {
@@ -29,10 +17,29 @@ namespace Game.Core
             _angularFriction = angularFriction;
         }
 
-        public void AddForce(Vector2 force) => Velocity += force;
-        public void AddTorque(float torque) => AngularVelocity += torque;
+        public Vector2 Position { get; set; }
+        public Vector2 Velocity { get; set; }
+        public float Rotation { get; set; }
+        public float AngularVelocity { get; set; }
 
-        public void UpdatePhysics(float deltaTime,float frictionMultiplier)
+        public float Speed => Velocity.magnitude;
+
+        public Vector2 Forward => new Vector2(
+            Mathf.Cos(Rotation * Mathf.Deg2Rad),
+            Mathf.Sin(Rotation * Mathf.Deg2Rad)
+        ).normalized;
+
+        public void AddForce(Vector2 force)
+        {
+            Velocity += force;
+        }
+
+        public void AddTorque(float torque)
+        {
+            AngularVelocity += torque;
+        }
+
+        public void UpdatePhysics(float deltaTime, float frictionMultiplier)
         {
             Velocity *= Mathf.Pow(_friction, deltaTime * frictionMultiplier);
             Position += Velocity * deltaTime;
@@ -43,19 +50,19 @@ namespace Game.Core
 
         public void TeleportIfOutOfBounds(float width, float height, float radius = 0f)
         {
-            float halfW = width / 2f + radius;
-            float halfH = height / 2f + radius;
+            var halfW = width / 2f + radius;
+            var halfH = height / 2f + radius;
 
-            Vector2 pos = Position;
+            var pos = Position;
 
-            if (pos.x > halfW) 
+            if (pos.x > halfW)
                 pos.x = -halfW;
-            else if (pos.x < -halfW) 
+            else if (pos.x < -halfW)
                 pos.x = halfW;
 
-            if (pos.y > halfH) 
+            if (pos.y > halfH)
                 pos.y = -halfH;
-            else if (pos.y < -halfH) 
+            else if (pos.y < -halfH)
                 pos.y = halfH;
 
             Position = pos;
@@ -70,8 +77,8 @@ namespace Game.Core
 
         public static void ResolvePushApart(ICollidable a, ICollidable b, float bounce = 0.8f)
         {
-            Vector2 diff = a.Body.Position - b.Body.Position;
-            float distance = diff.magnitude;
+            var diff = a.Body.Position - b.Body.Position;
+            var distance = diff.magnitude;
 
             if (distance < 0.0001f)
             {
@@ -79,26 +86,26 @@ namespace Game.Core
                 return;
             }
 
-            Vector2 normal = diff / distance;
+            var normal = diff / distance;
 
-            Vector2 relativeVelocity = a.Body.Velocity - b.Body.Velocity;
-            float velocityAlongNormal = Vector2.Dot(relativeVelocity, normal);
+            var relativeVelocity = a.Body.Velocity - b.Body.Velocity;
+            var velocityAlongNormal = Vector2.Dot(relativeVelocity, normal);
 
             if (velocityAlongNormal < 0)
             {
-                float j = -(1 + bounce) * velocityAlongNormal;
-                j /= 2; 
+                var j = -(1 + bounce) * velocityAlongNormal;
+                j /= 2;
 
-                Vector2 impulse = j * normal;
+                var impulse = j * normal;
                 a.Body.Velocity += impulse;
                 b.Body.Velocity -= impulse;
             }
 
-            float overlap = (a.CollisionRadius + b.CollisionRadius) - distance;
+            var overlap = a.CollisionRadius + b.CollisionRadius - distance;
             if (overlap > 0)
             {
-                const float percent = 0.5f; 
-                Vector2 correction = normal * (overlap * percent);
+                const float percent = 0.5f;
+                var correction = normal * (overlap * percent);
                 a.Body.Position += correction;
                 b.Body.Position -= correction;
             }

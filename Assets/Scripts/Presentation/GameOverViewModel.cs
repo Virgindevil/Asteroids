@@ -1,5 +1,3 @@
-using UnityEngine;
-using Zenject;
 using Game.Core;
 using Game.Infrastructure;
 
@@ -30,12 +28,12 @@ namespace Game.Presentation
         public void OnContinueClicked()
         {
             _adsService.ShowRewardedVideo(
-                onReward: () => _shouldRevive = true,
-                onClosed: () =>
+                () => _shouldRevive = true,
+                () =>
                 {
                     if (_shouldRevive)
                     {
-                        _shouldRevive = false; 
+                        _shouldRevive = false;
                         _session.OnPlayerRevived();
                     }
                 }

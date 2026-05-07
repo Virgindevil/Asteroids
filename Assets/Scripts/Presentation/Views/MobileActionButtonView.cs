@@ -1,26 +1,22 @@
+using Game.Core;
+using Game.Infrastructure;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Zenject;
-using Game.Infrastructure;
-using Game.Core;
 
 namespace Game.Presentation
 {
     public class MobileActionButtonView : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private enum ActionType { Bullet, Laser }
         [SerializeField] private ActionType _type;
 
-        [Inject(Optional = true)]
-        private MobileInputStrategy _mobileInput;
+        [Inject(Optional = true)] private MobileInputStrategy _mobileInput;
 
-        [Inject]
-        private WorldConfig _worldConfig;
+        [Inject] private WorldConfig _worldConfig;
 
         private void Start()
         {
-            // Если _mobileInput == null — мы точно не на мобилке
-            bool isMobile = _mobileInput != null || _worldConfig.ForceMobileInput;
+            var isMobile = _mobileInput != null || _worldConfig.ForceMobileInput;
             gameObject.SetActive(isMobile);
         }
 
@@ -38,6 +34,12 @@ namespace Game.Presentation
 
             if (_type == ActionType.Bullet) _mobileInput.SetShooting(false);
             else _mobileInput.SetLaser(false);
+        }
+
+        private enum ActionType
+        {
+            Bullet,
+            Laser
         }
     }
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Game.Core;
 using UnityEngine;
 using Zenject;
-using Game.Core;
 
 namespace Game.Presentation
 {
@@ -11,8 +11,19 @@ namespace Game.Presentation
         [SerializeField] private Transform _container;
 
         private readonly List<HeartView> _hearts = new();
-        private SignalBus _signalBus;
         private PlayerConfig _config;
+        private SignalBus _signalBus;
+
+        private void Start()
+        {
+            InitializeHearts();
+            _signalBus.Subscribe<PlayerHealthChangedSignal>(OnHealthChanged);
+        }
+
+        private void OnDestroy()
+        {
+            _signalBus?.TryUnsubscribe<PlayerHealthChangedSignal>(OnHealthChanged);
+        }
 
         [Inject]
         public void Construct(SignalBus signalBus, PlayerConfig config)
@@ -21,15 +32,9 @@ namespace Game.Presentation
             _config = config;
         }
 
-        private void Start()
-        {
-            InitializeHearts();
-            _signalBus.Subscribe<PlayerHealthChangedSignal>(OnHealthChanged);
-        }
-
         private void InitializeHearts()
         {
-            for (int i = 0; i < _config.MaxHealth; i++)
+            for (var i = 0; i < _config.MaxHealth; i++)
             {
                 var heart = Instantiate(_heartPrefab, _container);
                 _hearts.Add(heart);
@@ -38,15 +43,7 @@ namespace Game.Presentation
 
         private void OnHealthChanged(PlayerHealthChangedSignal signal)
         {
-            for (int i = 0; i < _hearts.Count; i++)
-            {
-                _hearts[i].SetActive(i < signal.CurrentHealth);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            _signalBus?.TryUnsubscribe<PlayerHealthChangedSignal>(OnHealthChanged);
+            for (var i = 0; i < _hearts.Count; i++) _hearts[i].SetActive(i < signal.CurrentHealth);
         }
     }
 }

@@ -7,11 +7,19 @@ namespace Game.UI
 {
     public class PlayerStatusBarView : MonoBehaviour
     {
+        [SerializeField] private Transform _target;
         [SerializeField] private Slider[] _chargeSliders;
-        [SerializeField] private Vector3 _offset = new Vector3(0, -1.2f, 0);
+        [SerializeField] private Vector3 _offset = new(0, -1.2f, 0);
 
         private PlayerViewModel _viewModel;
-        private Quaternion _fixedRotation;
+
+        private void LateUpdate()
+        {
+            transform.rotation = Quaternion.identity;
+            transform.position = _target.position + _offset;
+
+            UpdateVisuals();
+        }
 
         [Inject]
         public void Construct(PlayerViewModel viewModel)
@@ -19,25 +27,9 @@ namespace Game.UI
             _viewModel = viewModel;
         }
 
-        private void Start()
-        {
-            _fixedRotation = Quaternion.identity;
-        }
-
-        private void LateUpdate()
-        {
-            transform.rotation = _fixedRotation;
-            transform.position = transform.parent.position + _offset;
-
-            UpdateVisuals();
-        }
-
         private void UpdateVisuals()
         {
-            for (int i = 0; i < _chargeSliders.Length; i++)
-            {
-                _chargeSliders[i].value = _viewModel.GetChargeForSlider(i);
-            }
+            for (var i = 0; i < _chargeSliders.Length; i++) _chargeSliders[i].value = _viewModel.GetChargeForSlider(i);
         }
     }
 }

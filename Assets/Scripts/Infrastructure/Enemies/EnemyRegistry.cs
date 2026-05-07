@@ -9,10 +9,19 @@ namespace Game.Infrastructure
 
         public IReadOnlyList<EnemyModel> ActiveEnemies => _enemies;
 
-        public void Add(EnemyModel enemy) => _enemies.Add(enemy);
+        public void Add(EnemyModel enemy)
+        {
+            _enemies.Add(enemy);
+        }
 
-        public void Remove(EnemyModel enemy) => _enemies.Remove(enemy);
+        public void Remove(EnemyModel enemy)
+        {
+            _enemies.Remove(enemy);
+        }
 
-        public bool Contains(EnemyModel enemy) => _enemies.Contains(enemy);
+        public bool Contains(EnemyModel enemy)
+        {
+            return _enemies.Contains(enemy);
+        }
     }
 }

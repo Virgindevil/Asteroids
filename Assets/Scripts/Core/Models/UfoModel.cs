@@ -1,28 +1,31 @@
 using Game.Core;
 using UnityEngine;
 
-public class UfoModel : EnemyModel
+namespace Game.Core
 {
-    private readonly PlayerModel _player;
-
-    public UfoModel(EnemyConfig config, Vector2 pos, Vector2 vel, PlayerModel player)
-        : base(config, pos, vel)
+    public class UfoModel : EnemyModel
     {
-        _player = player;
-    }
+        private readonly PlayerModel _player;
 
-    public override void Update(float dt, float frictionMultiplier)
-    {
-        Vector2 directionToPlayer = (_player.Body.Position - Body.Position).normalized;
-        Body.Velocity = Vector2.Lerp(Body.Velocity, directionToPlayer * Config.Speed, dt * 0.5f);
-
-        if (directionToPlayer.sqrMagnitude > 0.001f)
+        public UfoModel(EnemyConfig config, Vector2 pos, Vector2 vel, PlayerModel player)
+            : base(config, pos, vel)
         {
-            float targetAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
-            targetAngle -= 90f; 
-            Body.Rotation = Mathf.LerpAngle(Body.Rotation, targetAngle, dt * 2f);
+            _player = player;
         }
 
-        Body.UpdatePhysics(dt, frictionMultiplier);
+        public override void Update(float dt, float frictionMultiplier)
+        {
+            var directionToPlayer = (_player.Body.Position - Body.Position).normalized;
+            Body.Velocity = Vector2.Lerp(Body.Velocity, directionToPlayer * Config.Speed, dt * 0.5f);
+
+            if (directionToPlayer.sqrMagnitude > 0.001f)
+            {
+                var targetAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
+                targetAngle -= 90f;
+                Body.Rotation = Mathf.LerpAngle(Body.Rotation, targetAngle, dt * 2f);
+            }
+
+            Body.UpdatePhysics(dt, frictionMultiplier);
+        }
     }
 }

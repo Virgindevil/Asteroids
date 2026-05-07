@@ -10,15 +10,22 @@ namespace Game.Infrastructure
             Vector2 mousePos = Input.mousePosition;
             return (mousePos - playerScreenPos).normalized;
         }
-        
+
         public Vector2 GetMoveDirection()
         {
-            float x = Input.GetAxisRaw("Horizontal"); 
-            float y = Input.GetAxisRaw("Vertical");   
+            var x = Input.GetAxisRaw("Horizontal");
+            var y = Input.GetAxisRaw("Vertical");
             return new Vector2(x, y).normalized;
         }
 
-        public bool IsShooting() => Input.GetMouseButton(0) || Input.GetKey(KeyCode.Space);
-        public bool IsLaserActive() => Input.GetMouseButton(1);
+        public bool IsShooting()
+        {
+            return Input.GetMouseButton(0) || Input.GetKey(KeyCode.Space);
+        }
+
+        public bool IsLaserActive()
+        {
+            return Input.GetMouseButton(1);
+        }
     }
 }

@@ -1,6 +1,5 @@
 using Firebase;
 using Firebase.Analytics;
-using UnityEngine;
 using Game.Core;
 
 namespace Game.Infrastructure
@@ -11,11 +10,10 @@ namespace Game.Infrastructure
 
         public FirebaseAnalyticsAdapter()
         {
-            FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task => {
+            FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+            {
                 var dependencyStatus = task.Result;
-                if (dependencyStatus == DependencyStatus.Available) {
-                    _isInitialized = true;
-                } 
+                if (dependencyStatus == DependencyStatus.Available) _isInitialized = true;
             });
         }
 
@@ -24,13 +22,9 @@ namespace Game.Infrastructure
             if (!_isInitialized) return;
 
             if (!string.IsNullOrEmpty(parameterName) && !string.IsNullOrEmpty(parameterValue))
-            {
                 FirebaseAnalytics.LogEvent(eventName, parameterName, parameterValue);
-            }
             else
-            {
                 FirebaseAnalytics.LogEvent(eventName);
-            }
         }
     }
 }

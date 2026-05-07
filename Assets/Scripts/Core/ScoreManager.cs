@@ -1,36 +1,43 @@
-using Game.Core;
+using System;
 using System.Collections.Generic;
+using Game.Core;
 using Zenject;
 
-public class ScoreManager : IInitializable, System.IDisposable
+namespace Game.Core
 {
-    private readonly SignalBus _signalBus;
-    private readonly Dictionary<string, int> _rewardByType;
-    private int _currentScore;
-
-    public ScoreManager(SignalBus signalBus, List<EnemyConfig> enemyConfigs)
+    public class ScoreManager : IInitializable, IDisposable
     {
-        _signalBus = signalBus;
-        _rewardByType = new Dictionary<string, int>();
+        private readonly Dictionary<string, int> _rewardByType;
+        private readonly SignalBus _signalBus;
+        private int _currentScore;
 
-        foreach (var enemy in enemyConfigs)
+        public ScoreManager(SignalBus signalBus, List<EnemyConfig> enemyConfigs)
         {
-            _rewardByType[enemy.EnemyType.ToString()] = enemy.ScoreReward;
+            _signalBus = signalBus;
+            _rewardByType = new Dictionary<string, int>();
+
+            foreach (var enemy in enemyConfigs) _rewardByType[enemy.EnemyType.ToString()] = enemy.ScoreReward;
+        }
+
+        public void Dispose()
+        {
+            _signalBus.TryUnsubscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+        }
+
+        public void Initialize()
+        {
+            _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+        }
+
+        private void OnEnemyDestroyed(EnemyDestroyedSignal signal)
+        {
+            if (signal.Enemy?.Config == null) return;
+
+            if (_rewardByType.TryGetValue(signal.Enemy.Config.EnemyType.ToString(), out var reward))
+            {
+                _currentScore += reward;
+                _signalBus.Fire(new ScoreChangedSignal { TotalScore = _currentScore });
+            }
         }
     }
-
-    public void Initialize() => _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
-
-    private void OnEnemyDestroyed(EnemyDestroyedSignal signal)
-    {
-        if (signal.Enemy?.Config == null) return;
-
-        if (_rewardByType.TryGetValue(signal.Enemy.Config.EnemyType.ToString(), out int reward))
-        {
-            _currentScore += reward;
-            _signalBus.Fire(new ScoreChangedSignal { TotalScore = _currentScore });
-        }
-    }
-
-    public void Dispose() => _signalBus.TryUnsubscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
 }

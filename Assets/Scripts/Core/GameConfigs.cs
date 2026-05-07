@@ -1,10 +1,13 @@
 using System;
-using System.Collections.Generic;
 
 namespace Game.Core
 {
-    public enum EnemyType { Asteroid, UFO }
-    
+    public enum EnemyType
+    {
+        Asteroid,
+        UFO
+    }
+
     [Serializable]
     public class PlayerConfig
     {
@@ -23,7 +26,7 @@ namespace Game.Core
         public float ShootCooldown;
         public float InvulnerabilityDuration;
     }
-    
+
     [Serializable]
     public class BulletSettings
     {

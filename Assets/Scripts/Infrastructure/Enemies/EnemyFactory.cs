@@ -1,15 +1,14 @@
-using UnityEngine;
 using Game.Core;
+using UnityEngine;
 using Zenject;
 
 namespace Game.Infrastructure
 {
     public class EnemyFactory
     {
-        private readonly PlayerModel _player;
         private readonly MapService _mapService;
-        private readonly SignalBus _signalBus;
-        
+        private readonly PlayerModel _player;
+
         private readonly float _spawnAreaDivisor;
         private readonly float _teleportOffset;
 
@@ -23,13 +22,14 @@ namespace Game.Infrastructure
 
         public EnemyModel Create(EnemyConfig config)
         {
-            Vector2 spawnPos = GetRandomSpawnPosition();
-            Vector2 velocity = GetRandomVelocity(spawnPos, config.Speed);
-            
-            return config.EnemyType switch {
+            var spawnPos = GetRandomSpawnPosition();
+            var velocity = GetRandomVelocity(spawnPos, config.Speed);
+
+            return config.EnemyType switch
+            {
                 EnemyType.Asteroid => new AsteroidModel(config, spawnPos, velocity),
                 EnemyType.UFO => new UfoModel(config, spawnPos, velocity, _player),
-                 _ => new AsteroidModel(config, spawnPos, velocity)
+                _ => new AsteroidModel(config, spawnPos, velocity)
             };
         }
 
@@ -41,10 +41,10 @@ namespace Game.Infrastructure
 
         private Vector2 GetRandomVelocity(Vector2 spawnPos, float speed)
         {
-            float half = _mapService.Width / _spawnAreaDivisor;
-            float halfH = _mapService.Height / _spawnAreaDivisor;
+            var half = _mapService.Width / _spawnAreaDivisor;
+            var halfH = _mapService.Height / _spawnAreaDivisor;
 
-            Vector2 targetPos = new Vector2(
+            var targetPos = new Vector2(
                 Random.Range(-half, half),
                 Random.Range(-halfH, halfH)
             );
@@ -54,10 +54,10 @@ namespace Game.Infrastructure
 
         private Vector2 GetRandomSpawnPosition()
         {
-            float w = _mapService.Width / 2f + _teleportOffset;
-            float h = _mapService.Height / 2f + _teleportOffset;
+            var w = _mapService.Width / 2f + _teleportOffset;
+            var h = _mapService.Height / 2f + _teleportOffset;
 
-            int side = Random.Range(0, 4);
+            var side = Random.Range(0, 4);
             return side switch
             {
                 0 => new Vector2(Random.Range(-w, w), h),

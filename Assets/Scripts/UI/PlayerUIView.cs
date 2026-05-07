@@ -1,7 +1,7 @@
-using UnityEngine;
-using TMPro;
-using Zenject;
 using Game.Core;
+using TMPro;
+using UnityEngine;
+using Zenject;
 
 namespace Game.UI
 {
@@ -15,13 +15,6 @@ namespace Game.UI
         private SignalBus _signalBus;
         private PlayerViewModel _viewModel;
 
-        [Inject]
-        public void Construct(PlayerViewModel viewModel, SignalBus signalBus)
-        {
-            _viewModel = viewModel;
-            _signalBus = signalBus;
-        }
-
         private void Start()
         {
             _signalBus.Subscribe<ScoreChangedSignal>(OnScoreChanged);
@@ -31,23 +24,30 @@ namespace Game.UI
         private void Update()
         {
             if (_viewModel == null) return;
-            _coordsText.text = $"POS: " +
+            _coordsText.text = "POS: " +
                                $"\n{_viewModel.Position.x:F1} : {_viewModel.Position.y:F1}";
-            _rotationText.text = $"ROT: " +
+            _rotationText.text = "ROT: " +
                                  $"\n{Mathf.RoundToInt(_viewModel.RoundRotation)}°";
-            _speedText.text = $"SPEED: " +
+            _speedText.text = "SPEED: " +
                               $"\n{_viewModel.Speed:F2} m/s";
+        }
+
+        private void OnDestroy()
+        {
+            _signalBus?.TryUnsubscribe<ScoreChangedSignal>(OnScoreChanged);
+        }
+
+        [Inject]
+        public void Construct(PlayerViewModel viewModel, SignalBus signalBus)
+        {
+            _viewModel = viewModel;
+            _signalBus = signalBus;
         }
 
 
         private void OnScoreChanged(ScoreChangedSignal signal)
         {
             _scoreText.text = signal.TotalScore.ToString();
-        }
-
-        private void OnDestroy()
-        {
-            _signalBus?.TryUnsubscribe<ScoreChangedSignal>(OnScoreChanged);
         }
     }
 }

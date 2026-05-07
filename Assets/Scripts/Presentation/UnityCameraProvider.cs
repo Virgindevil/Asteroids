@@ -1,7 +1,5 @@
-
-using UnityEngine;
 using Game.Core;
-using Zenject;
+using UnityEngine;
 
 namespace Game.Presentation
 {

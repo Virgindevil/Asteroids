@@ -1,6 +1,6 @@
+using Game.Core;
 using UnityEngine;
 using Zenject;
-using Game.Core;
 
 namespace Game.Presentation
 {
@@ -9,26 +9,26 @@ namespace Game.Presentation
         [SerializeField] private ParticleSystem _invincibilityParticles;
         private SignalBus _signalBus;
 
+        private void Start()
+        {
+            _signalBus.Subscribe<InvincibleEffectActiveSignal>(OnInvincibilityChanged);
+        }
+
+        private void OnDestroy()
+        {
+            _signalBus?.TryUnsubscribe<InvincibleEffectActiveSignal>(OnInvincibilityChanged);
+        }
+
         [Inject]
         public void Construct(SignalBus signalBus)
         {
             _signalBus = signalBus;
         }
 
-        private void Start()
-        {
-            _signalBus.Subscribe<InvincibleEffectActiveSignal>(OnInvincibilityChanged);
-        }
-
         private void OnInvincibilityChanged(InvincibleEffectActiveSignal signal)
         {
             if (signal.IsActive) _invincibilityParticles.Play();
             else _invincibilityParticles.Stop();
-        }
-
-        private void OnDestroy()
-        {
-            _signalBus?.TryUnsubscribe<InvincibleEffectActiveSignal>(OnInvincibilityChanged);
         }
     }
 }
