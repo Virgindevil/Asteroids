@@ -1,6 +1,6 @@
+// Presentation/ProjectileManager.cs
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Game.Core;
 using Game.Infrastructure;
 using UnityEngine;
@@ -8,27 +8,26 @@ using Zenject;
 
 namespace Game.Presentation
 {
-    public class ProjectileManager : IInitializable, IDisposable, IProjectileProvider, ITickable
+    // ITickable убран — ProjectileManager больше не тикает
+    public class ProjectileManager : IInitializable, IDisposable, IProjectileProvider
     {
         private readonly SignalBus _signalBus;
         private readonly ProjectileView.Factory _factory;
-        private readonly PlayerConfig _playerConfig;
         private readonly ProjectilePool _projectilePool;
 
         private readonly Dictionary<BulletModel, ProjectileView> _views = new();
-
         private readonly List<BulletModel> _activeBullets = new();
+
         public IReadOnlyList<BulletModel> ActiveProjectiles => _activeBullets;
 
+        // _playerConfig убран — он не нужен
         public ProjectileManager(
             SignalBus signalBus,
             ProjectileView.Factory factory,
-            PlayerConfig playerConfig,
             ProjectilePool projectilePool)
         {
             _signalBus = signalBus;
             _factory = factory;
-            _playerConfig = playerConfig;
             _projectilePool = projectilePool;
         }
 
@@ -37,28 +36,14 @@ namespace Game.Presentation
             _signalBus.Subscribe<BulletCreatedSignal>(OnBulletCreated);
             _signalBus.Subscribe<BulletDestroyedSignal>(OnBulletDestroyed);
         }
-        
 
-        public void Tick()
-        {
-            var bullets = _views.Keys.ToList();
-            var toDestroy = new List<BulletModel>();
-
-            foreach (var bullet in bullets)
-            {
-                if (!bullet.IsActive) { toDestroy.Add(bullet); continue; }
-
-                if (bullet.LifeTime <= 0)
-                    toDestroy.Add(bullet);
-            }
-
-            foreach (var bullet in toDestroy)
-                _projectilePool.Release(bullet);
-        }
+        // Tick полностью удалён
 
         private void OnBulletCreated(BulletCreatedSignal signal)
         {
+            // Регистрируем пулю и создаём View
             _activeBullets.Add(signal.Bullet);
+
             var view = _factory.Create();
             view.Initialize(signal.Bullet);
             _views[signal.Bullet] = view;
@@ -66,10 +51,15 @@ namespace Game.Presentation
 
         private void OnBulletDestroyed(BulletDestroyedSignal signal)
         {
+            // BulletLifecycleService вызвал pool.Release → сигнал пришёл сюда
+            // Удаляем пулю из активных и уничтожаем View
+            _activeBullets.Remove(signal.Bullet);
+
             if (_views.TryGetValue(signal.Bullet, out var view))
             {
-                _activeBullets.Remove(signal.Bullet);
-                UnityEngine.Object.Destroy(view.gameObject);
+                if (view != null)
+                    UnityEngine.Object.Destroy(view.gameObject);
+
                 _views.Remove(signal.Bullet);
             }
         }

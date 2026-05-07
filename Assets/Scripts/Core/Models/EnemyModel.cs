@@ -20,7 +20,7 @@ namespace Game.Core
             Body.Velocity = velocity;
         }
 
-        public abstract void Update(float dt);
+        public abstract void Update(float dt, float frictionMultiplier);
 
         public virtual void TakeDamage(float amount)
         {

@@ -21,9 +21,9 @@ namespace Game.Core
             CanSplit = config.CanSplit;
         }
 
-        public override void Update(float dt)
+        public override void Update(float dt,  float frictionMultiplier)
         {
-            Body.UpdatePhysics(dt);
+            Body.UpdatePhysics(dt, frictionMultiplier);
         }
 
         public List<FragmentData> GetFragments()

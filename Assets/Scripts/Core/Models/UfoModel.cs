@@ -11,7 +11,7 @@ public class UfoModel : EnemyModel
         _player = player;
     }
 
-    public override void Update(float dt)
+    public override void Update(float dt, float frictionMultiplier)
     {
         Vector2 directionToPlayer = (_player.Body.Position - Body.Position).normalized;
         Body.Velocity = Vector2.Lerp(Body.Velocity, directionToPlayer * Config.Speed, dt * 0.5f);
@@ -23,6 +23,6 @@ public class UfoModel : EnemyModel
             Body.Rotation = Mathf.LerpAngle(Body.Rotation, targetAngle, dt * 2f);
         }
 
-        Body.UpdatePhysics(dt);
+        Body.UpdatePhysics(dt, frictionMultiplier);
     }
 }

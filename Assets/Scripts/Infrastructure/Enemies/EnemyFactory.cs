@@ -9,11 +9,16 @@ namespace Game.Infrastructure
         private readonly PlayerModel _player;
         private readonly MapService _mapService;
         private readonly SignalBus _signalBus;
+        
+        private readonly float _spawnAreaDivisor;
+        private readonly float _teleportOffset;
 
-        public EnemyFactory(PlayerModel player, MapService mapService)
+        public EnemyFactory(PlayerModel player, MapService mapService, WorldConfig worldConfig)
         {
             _player = player;
             _mapService = mapService;
+            _spawnAreaDivisor = worldConfig.SpawnAreaDivisor;
+            _teleportOffset = worldConfig.TeleportBoundaryOffset;
         }
 
         public EnemyModel Create(EnemyConfig config)
@@ -36,9 +41,12 @@ namespace Game.Infrastructure
 
         private Vector2 GetRandomVelocity(Vector2 spawnPos, float speed)
         {
+            float half = _mapService.Width / _spawnAreaDivisor;
+            float halfH = _mapService.Height / _spawnAreaDivisor;
+
             Vector2 targetPos = new Vector2(
-                Random.Range(-_mapService.Width / 4, _mapService.Width / 4),
-                Random.Range(-_mapService.Height / 4, _mapService.Height / 4)
+                Random.Range(-half, half),
+                Random.Range(-halfH, halfH)
             );
 
             return (targetPos - spawnPos).normalized * speed;
@@ -46,8 +54,8 @@ namespace Game.Infrastructure
 
         private Vector2 GetRandomSpawnPosition()
         {
-            float w = _mapService.Width / 2f + 1f; 
-            float h = _mapService.Height / 2f + 1f;
+            float w = _mapService.Width / 2f + _teleportOffset;
+            float h = _mapService.Height / 2f + _teleportOffset;
 
             int side = Random.Range(0, 4);
             return side switch

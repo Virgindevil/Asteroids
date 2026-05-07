@@ -31,9 +31,9 @@ namespace Game.Infrastructure
             Container.BindInterfacesAndSelfTo<CollisionManager>().AsSingle().NonLazy();
             Container.BindInterfacesAndSelfTo<MapService>().AsSingle();
             Container.BindInterfacesAndSelfTo<PlayerPhysicsTicker>().AsSingle();
-            Container.BindInterfacesAndSelfTo<BulletPhysicsTicker>().AsSingle();
-            Container.BindInterfacesAndSelfTo<EnemyRegistry>().AsSingle();              // CollisionManager получит через интерфейс
-            Container.BindInterfacesAndSelfTo<EnemySimulator>().AsSingle(); // апдейт и смерть
+            Container.BindInterfacesAndSelfTo<BulletLifecycleService>().AsSingle();
+            Container.BindInterfacesAndSelfTo<EnemyRegistry>().AsSingle();              
+            Container.BindInterfacesAndSelfTo<EnemySimulator>().AsSingle();
             Container.BindInterfacesAndSelfTo<EnemySpawner>().AsSingle();
             Container.BindInterfacesAndSelfTo<AdMobService>().AsSingle();
             Container.BindInterfacesAndSelfTo<ScoreManager>().AsSingle();

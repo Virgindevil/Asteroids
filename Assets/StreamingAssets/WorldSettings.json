@@ -1,6 +1,4 @@
 {
-  "Width": 71.1,
-  "Height": 40.0,
   "MaxEnemies": 20,
   "EnemiesSpawnInterval": 2,
   "ForceMobileInput": false,

@@ -17,7 +17,6 @@ namespace Game.Core
             ).normalized;
 
         public const int RoundDegree = 360;
-        public const float _frictionTimeMultiplier = 10f;
 
         private readonly float _friction;
         private readonly float _angularFriction;
@@ -33,12 +32,12 @@ namespace Game.Core
         public void AddForce(Vector2 force) => Velocity += force;
         public void AddTorque(float torque) => AngularVelocity += torque;
 
-        public void UpdatePhysics(float deltaTime)
+        public void UpdatePhysics(float deltaTime,float frictionMultiplier)
         {
-            Velocity *= Mathf.Pow(_friction, deltaTime * _frictionTimeMultiplier);
+            Velocity *= Mathf.Pow(_friction, deltaTime * frictionMultiplier);
             Position += Velocity * deltaTime;
 
-            AngularVelocity *= Mathf.Pow(_angularFriction, deltaTime * _frictionTimeMultiplier);
+            AngularVelocity *= Mathf.Pow(_angularFriction, deltaTime * frictionMultiplier);
             Rotation = Mathf.Repeat(Rotation + AngularVelocity * deltaTime, RoundDegree);
         }
 

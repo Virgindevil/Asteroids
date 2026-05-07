@@ -9,7 +9,7 @@ namespace Game.Core
     public class PlayerConfig
     {
         public float CollisionRadius;
-        public float MaxHealth;
+        public int MaxHealth;
         public float MovementAcceleration;
         public float Friction;
         public int MaxLaserCharges;
@@ -39,7 +39,7 @@ namespace Game.Core
         public float Health;
         public int ScoreReward;
         public bool CanSplit;
-        public float Fragments;
+        public int Fragments;
         public float CollisionRadius;
         public float Friction;
         public float FragmentSpeedBoost;
@@ -49,8 +49,6 @@ namespace Game.Core
     [Serializable]
     public class WorldConfig
     {
-        public float Width;
-        public float Height;
         public int MaxEnemies;
         public float EnemiesSpawnInterval;
         public bool ForceMobileInput;

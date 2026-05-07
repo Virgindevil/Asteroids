@@ -13,19 +13,24 @@ namespace Game.Infrastructure
         private readonly MapService _mapService;
         private readonly SignalBus _signalBus;
         private readonly List<EnemyConfig> _enemyConfigs;
+        private readonly float _frictionMultiplier;
+        private readonly float _teleportOffset;
 
         public EnemySimulator(
             EnemyRegistry registry,
             EnemyFactory factory,
             MapService mapService,
             SignalBus signalBus,
-            List<EnemyConfig> enemyConfigs)
+            List<EnemyConfig> enemyConfigs,
+            WorldConfig worldConfig)  // добавляем
         {
             _registry = registry;
             _factory = factory;
             _mapService = mapService;
             _signalBus = signalBus;
             _enemyConfigs = enemyConfigs;
+            _frictionMultiplier = worldConfig.FrictionTimeMultiplier;
+            _teleportOffset = worldConfig.TeleportBoundaryOffset;
         }
 
         public void Tick()
@@ -44,10 +49,10 @@ namespace Game.Infrastructure
                     continue;
                 }
 
-                enemy.Update(dt);
+                enemy.Update(dt, _frictionMultiplier); 
                 enemy.Body.TeleportIfOutOfBounds(
-                    _mapService.Width + enemy.Config.CollisionRadius + 1f,
-                    _mapService.Height + enemy.Config.CollisionRadius + 1f);
+                    _mapService.Width + _teleportOffset,  
+                    _mapService.Height + _teleportOffset);
             }
         }
 
