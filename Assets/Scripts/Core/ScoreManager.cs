@@ -19,8 +19,7 @@ namespace Game.Core
                 _rewardByType[enemy.EnemyType] = enemy.ScoreReward;
         }
 
-        public void Initialize() =>
-            _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+        public void Initialize() => _signalBus.Subscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
 
         private void OnEnemyDestroyed(EnemyDestroyedSignal signal)
         {
@@ -33,7 +32,6 @@ namespace Game.Core
             }
         }
 
-        public void Dispose() =>
-            _signalBus.TryUnsubscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
+        public void Dispose() => _signalBus.TryUnsubscribe<EnemyDestroyedSignal>(OnEnemyDestroyed);
     }
 }

@@ -10,13 +10,9 @@ namespace Game.Infrastructure
         public override void InstallBindings()
         {
             SignalBusInstaller.Install(Container);
-
-            // Регистрируем ConfigLoader в контейнере — Zenject создаёт его сам
-            // NonLazy — создаётся сразу при старте, не при первом запросе
+            
             Container.Bind<ConfigLoader>().AsSingle().NonLazy();
 
-            // Конфиги получаем через FromMethod — Zenject резолвит ConfigLoader
-            // и вызывает лямбду после того как все биндинги зарегистрированы
             Container.Bind<PlayerConfig>()
                 .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Player)
                 .AsSingle();
@@ -29,11 +25,7 @@ namespace Game.Infrastructure
             Container.Bind<BulletSettings>()
                 .FromMethod(ctx => ctx.Container.Resolve<ConfigLoader>().Bullet)
                 .AsSingle();
-
-            // ForceMobileInput читаем до биндингов через прямое создание —
-            // это единственное исключение, потому что нужно ДО выбора стратегии ввода
-            var tempLoader = new ConfigLoader();
-            var useMobileInput = Application.isMobilePlatform || tempLoader.World.ForceMobileInput;
+            var useMobileInput = Application.isMobilePlatform || Container.Resolve<ConfigLoader>().World.ForceMobileInput;
 
 
             Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsAdapter>().AsSingle();
